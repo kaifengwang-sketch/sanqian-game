@@ -1,0 +1,1679 @@
+<title>三千块进城</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* 版式：顶上一张交通卡（余额就是存款），五年是一条地铁线；下面是这一站发生的事和行程记录 */
+:root {
+  --bg: #edf1ef;
+  --card: #fbfcfb;
+  --ink: #14202a;
+  --muted: #586a72;
+  --rule: #d0dad7;
+  --line: #0a7482;
+  --line-ink: #f4fbfb;
+  --amber: #a46606;
+  --danger: #b83c26;
+  --good: #2b7547;
+  --chip: #e1e9e6;
+  --ticket: #e4eff4;
+  --font-display: "ZCOOL QingKe HuangYou", "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1317; --card: #141e24; --ink: #e2eae8; --muted: #8c9ea5; --rule: #25333b;
+    --line: #36b0be; --line-ink: #04161a; --amber: #e6ad47; --danger: #f07a61; --good: #6dc48c;
+    --chip: #1c2930; --ticket: #17262e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1317; --card: #141e24; --ink: #e2eae8; --muted: #8c9ea5; --rule: #25333b;
+  --line: #36b0be; --line-ink: #04161a; --amber: #e6ad47; --danger: #f07a61; --good: #6dc48c;
+  --chip: #1c2930; --ticket: #17262e; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2.5px solid var(--amber); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.app {
+  max-width: 600px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+#game { display: flex; flex-direction: column; gap: 16px; }
+#game[hidden], #start[hidden] { display: none !important; }
+
+/* 开始页 */
+.start { display: flex; flex-direction: column; gap: 16px; padding-top: 12px; }
+.eyebrow { margin: 0; font-size: 12.5px; letter-spacing: .16em; color: var(--line); }
+.title { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 15vw, 76px); line-height: 1; letter-spacing: .02em; text-wrap: balance; }
+.lede { margin: 0; color: var(--muted); line-height: 1.9; }
+.train {
+  background: var(--ticket); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
+  border: 1px solid var(--rule); position: relative;
+}
+.train .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.train .st { font-size: 22px; font-weight: 700; }
+.train .no { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.train .small { font-size: 12.5px; color: var(--muted); }
+.train .arrow { flex: 1; border-bottom: 2px dashed var(--rule); margin: 0 10px; transform: translateY(-6px); min-width: 24px; }
+.name-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.name-row label { font-size: 13.5px; color: var(--muted); }
+.name-row input {
+  font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--rule); border-radius: 10px;
+  padding: 9px 12px; width: 10em; min-width: 0;
+}
+.album { display: flex; flex-direction: column; gap: 8px; }
+.album h3, .sec-title { margin: 0; font-size: 12.5px; letter-spacing: .1em; color: var(--muted); font-weight: 500; }
+.slots { display: flex; flex-wrap: wrap; gap: 6px; }
+.slot { border: 1px dashed var(--rule); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--muted); }
+.slot.got { border-style: solid; border-color: var(--line); color: var(--ink); }
+.credit { margin: 0; font-size: 12px; color: var(--muted); }
+
+/* 交通卡 */
+.pass { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: 0 10px 28px -20px rgba(0,0,0,.45); }
+.pass-band { background: var(--line); color: var(--line-ink); display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 16px; }
+.brand { font-family: var(--font-display); font-size: 19px; letter-spacing: .05em; }
+.pass-band .date { font-size: 12.5px; }
+.pass-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
+.bal { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bal .lbl { font-size: 12px; letter-spacing: .14em; color: var(--muted); }
+.bal .num { font-size: 32px; font-weight: 700; color: var(--amber); line-height: 1.1; }
+.bal .num.neg { color: var(--danger); }
+.who { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 13.5px; color: var(--muted); }
+.who b { color: var(--ink); }
+
+.metro { padding: 4px 14px 0; }
+.rail { position: relative; height: 6px; border-radius: 3px; background: var(--rule); }
+.rail i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--line); }
+.rail b { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--card); }
+.stops { list-style: none; margin: -11px 0 0; padding: 0; display: flex; justify-content: space-between; }
+.stops li { width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.stops li::before { content: ""; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: var(--card); border: 3px solid var(--rule); }
+.stops li.on::before { border-color: var(--line); }
+
+.meters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
+.meter { display: grid; grid-template-columns: auto minmax(0, 1fr) 2.2em; align-items: center; gap: 8px; font-size: 12.5px; }
+.meter .bar { height: 6px; border-radius: 3px; background: var(--chip); overflow: hidden; }
+.meter .bar i { display: block; height: 100%; background: var(--line); }
+.meter.low .bar i { background: var(--danger); }
+.meter.low .v { color: var(--danger); }
+.meter .v { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
+.chip b { font-family: var(--font-mono); font-weight: 700; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+/* 这一站 */
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 16px; }
+.card h2 { margin: 0 0 10px; font-size: 18px; line-height: 1.35; display: flex; align-items: center; gap: 9px; text-wrap: balance; }
+.card h2::before { content: ""; flex: none; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; border: 3px solid var(--line); }
+.kicker { margin: 0 0 4px; font-size: 11.5px; color: var(--muted); }
+.txt p { margin: 0 0 10px; }
+.txt p:last-child { margin-bottom: 0; }
+.choices { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.choice {
+  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 11px 14px; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px; line-height: 1.5;
+}
+.choice:hover { border-color: var(--line); }
+.choice small { font-size: 12.5px; color: var(--muted); }
+.primary { background: var(--line); color: var(--line-ink); border: 0; border-radius: 10px; padding: 11px 22px; font-weight: 700; cursor: pointer; }
+.primary:hover { filter: brightness(1.08); }
+.deltas { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 16px; }
+.delta { font-family: var(--font-mono); font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--chip); font-variant-numeric: tabular-nums; }
+.delta.up { color: var(--good); }
+.delta.down { color: var(--danger); }
+.sub { margin: -4px 0 12px; font-size: 12.5px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.act {
+  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.act:hover { border-color: var(--line); }
+.act b { font-size: 15px; }
+.act small { font-size: 12px; line-height: 1.45; color: var(--muted); }
+.free { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.ghost { background: transparent; border: 1px dashed var(--rule); border-radius: 8px; padding: 5px 12px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.ghost:hover { border-color: var(--line); color: var(--ink); }
+.ending .end-title { display: block; font-family: var(--font-display); font-weight: 400; font-size: 38px; line-height: 1.1; margin: 4px 0 14px; }
+.ending .end-title::before { display: none; }
+.sum { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 16px 0; font-size: 13.5px; }
+.sum dt { color: var(--muted); }
+.sum dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* 面试邀约和 offer */
+.tickets { display: flex; flex-direction: column; gap: 8px; }
+.ticket {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--line); border-radius: 10px; padding: 10px 12px;
+}
+.ticket.offer { border-left-color: var(--amber); }
+.ticket > div { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ticket small { font-size: 12.5px; color: var(--muted); }
+.ticket .tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--line); }
+.ticket.offer .tag { color: var(--amber); }
+.ticket button { flex: none; }
+.ticket .take { background: var(--amber); color: var(--card); border: 0; border-radius: 8px; padding: 6px 14px; font-weight: 700; cursor: pointer; }
+.ticket button:disabled { opacity: .45; cursor: not-allowed; }
+
+/* 行程记录 */
+.route { display: flex; flex-direction: column; gap: 8px; }
+.stations { list-style: none; margin: 0; padding: 0 0 0 22px; position: relative; }
+.stations::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--line); opacity: .55; }
+.stations li { position: relative; padding: 3px 0 9px; display: flex; flex-direction: column; font-size: 13.5px; }
+.stations li::before { content: ""; position: absolute; left: -21px; top: 8px; width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%; background: var(--card); border: 2.5px solid var(--line); }
+.stations .t { font-size: 11px; color: var(--muted); }
+
+.foot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--rule); padding-top: 14px; }
+.toast { font-size: 12.5px; color: var(--good); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .card { animation: rise .22s ease-out; }
+  @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+</style>
+
+<div class="app" id="app">
+  <section class="start" id="start" hidden>
+    <p class="eyebrow">一个文科生的五年</p>
+    <h1 class="title">三千块进城</h1>
+    <p class="lede">七月，你拿到了汉语言文学的毕业证。没考研，也没考公。<br>兜里 3000 块：2000 是爸妈给的，1000 是做家教攒的。<br>高铁的终点站，是南屿。</p>
+    <div class="train" aria-label="车票">
+      <div class="row"><span class="st">老家</span><span class="arrow"></span><span class="no">G1024</span><span class="arrow"></span><span class="st">南屿</span></div>
+      <div class="row small"><span>7月1日 08:15 开</span><span>二等座 05 车 12F</span></div>
+      <div class="row small"><span>全部家当 ¥3,000</span><span>限乘当日当次车</span></div>
+    </div>
+    <div class="name-row">
+      <label for="nm">给自己起个名字</label>
+      <input id="nm" type="text" maxlength="8" value="小林" autocomplete="off">
+      <button class="primary" id="go" type="button">出发</button>
+    </div>
+    <div class="album" id="album"></div>
+    <p class="credit">事件引擎部分改编自开源项目 lifesim-kit（MIT 许可）。人物、公司、城市均为虚构。</p>
+  </section>
+
+  <section id="game" hidden>
+    <header class="pass" id="pass"></header>
+    <section id="stage" aria-live="polite"></section>
+    <section class="tickets" id="tickets"></section>
+    <section class="route" id="route"></section>
+  </section>
+
+  <footer class="foot" id="foot">
+    <button class="ghost" type="button" data-save>存档</button>
+    <button class="ghost" type="button" data-load>读档</button>
+    <button class="ghost" type="button" data-restart>重新开始</button>
+    <span class="toast" id="toast" role="status"></span>
+  </footer>
+</div>
+<script>
+/*CORE-START*/
+const Core = (() => {
+  'use strict';
+
+  // ---- rnd / pickWeighted / check 改编自 lifesim-kit（https://github.com/Jasonin2099/lifesim-kit）----
+  // MIT License
+  // Copyright (c) 2026 Jasonin2099
+  // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+  // associated documentation files (the "Software"), to deal in the Software without restriction,
+  // including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  // and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+  // subject to the following conditions:
+  // The above copyright notice and this permission notice shall be included in all copies or substantial
+  // portions of the Software.
+  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+  // LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+  // EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+  // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
+  // THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  // 随机数状态是一个 uint32，存在存档里，读档后接着同一条随机序列。
+  function rnd(s) {
+    let t = (s.rng = (s.rng + 0x6d2b79f5) >>> 0);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  function pickWeighted(s, list, weightOf = (x) => x.weight ?? 1) {
+    const total = list.reduce((a, x) => a + Math.max(0, weightOf(x)), 0);
+    if (total <= 0) return null;
+    let r = rnd(s) * total;
+    for (const x of list) if ((r -= Math.max(0, weightOf(x))) < 0) return x;
+    return list[list.length - 1];
+  }
+  const inRange = (v, lo, hi) => typeof v === 'number' && (lo === undefined || v >= lo) && (hi === undefined || v <= hi);
+  function check(s, c) {
+    if (!c) return true;
+    if (typeof c === 'function') return Boolean(c(s));
+    if (Array.isArray(c)) return c.every((x) => check(s, x));
+    if (c.all) return c.all.every((x) => check(s, x));
+    if (c.any) return c.any.some((x) => check(s, x));
+    if (c.not) return !check(s, c.not);
+    if (c.stat) return inRange(s.stats[c.stat], c.min, c.max);
+    if (c.flag) return c.eq === false ? !s.flags[c.flag] : Boolean(s.flags[c.flag]);
+    if (c.seen) return s.seen.includes(c.seen);
+    if (c.phase) return s.phase === c.phase;
+    if (c.house) return [].concat(c.house).includes(s.house);
+    if (c.track) return Boolean(s.job) && [].concat(c.track).includes(s.job.track);
+    if (c.month) return inRange(s.month, c.month.min, c.month.max);
+    if (c.level) return Boolean(s.job) && inRange(s.job.level, c.level.min, c.level.max);
+    throw new Error('unknown condition: ' + JSON.stringify(c));
+  }
+  // ---- lifesim-kit 部分结束 ----
+
+  const BOUNDED = new Set(['energy', 'mood', 'skill', 'talk', 'network', 'perf', 'boss']);
+  const GROW = new Set(['skill', 'talk', 'network']);
+  const STAT_NAMES = { cash: '存款', energy: '精力', mood: '心态', skill: '专业', talk: '表达', network: '人脉', perf: '表现', boss: '领导印象' };
+  const KEYS = Object.keys(STAT_NAMES);
+
+  const rint = (s, a, b) => a + Math.floor(rnd(s) * (b - a + 1));
+  const chance = (s, p) => rnd(s) < p;
+  const say = (s, arr) => arr[Math.floor(rnd(s) * arr.length)];
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const r100 = (v) => Math.round(v / 100) * 100;
+  function shuffle(s, arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd(s) * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // 所有数值变化都走 add，上下限在这里统一处理。mult 只放大专业、表达、人脉的增长。
+  function add(s, eff, mult = 1) {
+    for (const [k, raw] of Object.entries(eff)) {
+      if (!(k in s.stats)) continue;
+      let v = Array.isArray(raw) ? rint(s, raw[0], raw[1]) : raw;
+      if (GROW.has(k) && v > 0) v *= mult;
+      const nv = s.stats[k] + v;
+      s.stats[k] = BOUNDED.has(k) ? clamp(Math.round(nv), 0, 100) : Math.round(nv);
+    }
+  }
+  function earn(s, amt) {
+    s.stats.cash += amt;
+    s.earn[s.month] = (s.earn[s.month] || 0) + amt;
+  }
+
+  function money(n) {
+    const a = Math.abs(Math.round(n));
+    let t;
+    if (a >= 1e6) t = (a / 1e4).toFixed(0) + '万';
+    else if (a >= 1e5) t = (a / 1e4).toFixed(1).replace(/\.0$/, '') + '万';
+    else t = a.toLocaleString('en-US');
+    return (n < 0 ? '−¥' : '¥') + t;
+  }
+  const calMonth = (m) => ((6 + m) % 12) + 1;
+  const yearOf = (m) => Math.floor(m / 12) + 1;
+  function stamp(s) {
+    return `第${yearOf(s.month)}年 · ${calMonth(s.month)}月` + (s.phase === 'search' ? ` 第${s.week + 1}周` : '');
+  }
+  function log(s, x) {
+    s.log.unshift({ t: stamp(s), x });
+    if (s.log.length > 80) s.log.length = 80;
+  }
+  const nextId = (s) => ++s.uid;
+  // 转正后、第二年起，一回合是一个季度
+  function monthsPerTurn(s) { return s.job && s.job.prob === 0 && s.month >= 12 ? 3 : 1; }
+  const gainMult = (s) => (s.phase === 'work' && monthsPerTurn(s) === 3 ? 2 : 1);
+  function last12(s) {
+    let t = 0;
+    for (let m = s.month - 11; m <= s.month; m++) t += s.earn[m] || 0;
+    return t;
+  }
+
+  // ---- 岗位线 ----
+  // pay：每一级的基准月薪；start：应届生的招聘区间；req：升到这一级要的专业能力
+  // watch：摸鱼被抓的基础概率；layoff：每月被裁的基础概率；diff：面试门槛
+  const TRACKS = {
+    media: {
+      name: '新媒体运营', companies: ['「一口茶」茶饮', '「野鹿」咖啡', '「小满」零食'],
+      titles: ['运营专员', '高级运营', '内容主管', '品牌经理', '品牌总监'],
+      pay: [5000, 8000, 13000, 20000, 32000], start: [4500, 6000], req: [0, 30, 45, 60, 75],
+      bonus: { S: 3, A: 2, B: 1, C: 0 }, watch: 0.22, layoff: 0.01, diff: 0.5, goodHR: 0.45,
+      blurb: '单休，老板拍脑袋，涨得快也跑得快',
+    },
+    ad: {
+      name: '文案策划', companies: ['「方寸」广告', '「白昼」创意', '「回声」整合营销'],
+      titles: ['文案', '资深文案', '创意主管', '创意总监', '执行创意总监'],
+      pay: [5500, 9000, 15000, 25000, 40000], start: [5000, 6500], req: [0, 30, 45, 60, 75],
+      bonus: { S: 2, A: 1.5, B: 1, C: 0 }, watch: 0.18, layoff: 0.012, diff: 0.55, goodHR: 0.5,
+      blurb: '天天比稿改稿，能力涨得最快',
+    },
+    admin: {
+      name: '行政专员', companies: ['南屿城投（外包）', '南屿水务（外包）'],
+      titles: ['行政专员', '高级行政', '行政主管', '行政经理', '综合部经理'],
+      pay: [4200, 5000, 6000, 7500, 9000], start: [4000, 4500], req: [0, 20, 30, 40, 50],
+      bonus: { S: 2, A: 1.5, B: 1, C: 0.5 }, watch: 0.1, layoff: 0.002, diff: 0.42, goodHR: 0.6, promo: 0.5,
+      blurb: '稳定，几乎不辞退，天花板低',
+    },
+    edu: {
+      name: '课程顾问', companies: ['「学霸星球」教育', '「状元路」培优'],
+      titles: ['课程顾问', '资深顾问', '顾问主管', '校区校长', '区域总监'],
+      pay: [3500, 5000, 8000, 12000, 18000], start: [3500, 4000], req: [0, 20, 35, 50, 65],
+      bonus: { S: 1, A: 0.5, B: 0, C: 0 }, watch: 0.28, layoff: 0.004, collapse: 0.018, diff: 0.35, goodHR: 0.35,
+      comm: 'edu', dorm: true, blurb: '底薪加提成，考核话术，机构可能跑路',
+    },
+    sales: {
+      name: '客户经理', companies: ['「云帆」软件', '「千帆」SaaS', '「数禾」云服务'],
+      titles: ['客户经理', '高级客户经理', '销售主管', '大客户总监', '销售副总裁'],
+      pay: [4000, 6000, 9000, 14000, 20000], start: [4000, 5000], req: [0, 25, 40, 55, 70],
+      bonus: { S: 2, A: 1, B: 0.5, C: 0 }, watch: 0.14, layoff: 0.008, diff: 0.45, goodHR: 0.5,
+      comm: 'sales', blurb: '底薪加提成，收入波动最大',
+    },
+    bigtech: {
+      name: '内容运营', companies: ['星河科技', '极光互动'],
+      titles: ['内容运营 P5', '高级运营 P6', '运营专家 P7', '资深专家 P8', '运营总监 P9'],
+      pay: [10000, 18000, 30000, 50000, 75000], start: [9000, 12000], req: [0, 40, 55, 70, 85],
+      bonus: { S: 6, A: 4, B: 2, C: 0 }, stock: [0, 0, 150000, 400000, 800000],
+      watch: 0.2, layoff: 0.008, diff: 0.72, goodHR: 0.75, blurb: '面试三轮，最难进',
+    },
+    live: {
+      name: '储备干部', companies: ['「星耀」传媒'], titles: ['直播助理（储备干部）'],
+      pay: [6000], start: [6000, 6000], req: [0], bonus: { S: 0, A: 0, B: 0, C: 0 },
+      watch: 0.35, layoff: 0.03, unpaid: 0.1, diff: 0, goodHR: 1, dorm: true, trap: true,
+      blurb: '包住宿，明天就能上班，合同转正再签',
+    },
+    scam: {
+      name: '高薪文员', companies: ['「鼎盛」人力资源'], titles: ['文员'],
+      pay: [12000], start: [12000, 15000], req: [0], bonus: { S: 0, A: 0, B: 0, C: 0 },
+      watch: 0, layoff: 0, diff: 0, goodHR: 1, trap: true, blurb: '月入过万，不看经验，当天入职',
+    },
+  };
+
+  // ---- 住处 ----
+  // move：入住时一次交的钱（含押金）；dep：押金，搬走时退；e/m：每回合对精力、心态的影响
+  const HOUSES = {
+    hostel: { name: '青旅八人间', cost: '每周 350，不用押金', note: '随时能走，但睡不好，丢东西是常事', week: 350, rent: 0, move: 0, dep: 0, e: -4, m: -2,
+      say: '八人间的上铺，空调正对着头吹。隔壁床的大哥打呼噜像拖拉机。' },
+    village: { name: '城中村单间', cost: '月租 800，押一付一，先交 1600', note: '便宜，离市区远，通勤累', rent: 800, move: 1600, dep: 800, e: -6, m: -1,
+      say: '城中村的单间，窗外就是别人家的墙。好在热水器是好的。' },
+    shared: { name: '合租次卧', cost: '月租 1500，押一付一，先交 3000', note: '住得舒服，室友可能帮你介绍工作', rent: 1500, move: 3000, dep: 1500, e: -2, m: 1,
+      say: '合租的次卧，带个小阳台。室友在广告公司做设计，看着挺好相处。' },
+    sofa: { name: '同学家沙发', cost: '免费，最多住 4 周', note: '省钱，但寄人篱下', rent: 0, move: 0, dep: 0, e: -3, m: -4,
+      say: '同学家的沙发有点短，腿得蜷着睡。同学说：“住多久都行。”他对象没说话。' },
+    dorm: { name: '公司宿舍', cost: '每月 300，四人间', note: '便宜，下班也在公司的圈子里', rent: 300, move: 0, dep: 0, e: -2, m: -1,
+      say: '四人间，上床下桌。室友们晚上都在打游戏。' },
+    flat: { name: '整租一居室', cost: '月租 3500，押一付一，先交 7000', note: '自己的地方，下班能安静一会儿', rent: 3500, move: 7000, dep: 3500, e: 0, m: 3,
+      say: '一室一厅，朝南。你给自己买了一盆绿萝。' },
+  };
+
+  // ---- 面试题：每个选项 [文字, 得分]，2 好、1 一般、0 差。显示时打乱顺序 ----
+  const QS = {
+    general: [
+      { q: '“说说你最大的缺点。”', o: [['“我太追求完美了。”', 1], ['“我做事容易拖到最后才动手。现在每天早上先列清单，按截止时间排。”', 2], ['“我好像没什么明显的缺点。”', 0]] },
+      { q: '“为什么想来我们公司？”', o: [['“离我住的地方近。”', 0], ['“我看了你们最近半年的内容，有几个案例做得特别好，想参与这样的项目。”', 2], ['“贵公司平台大，发展前景好。”', 1]] },
+      { q: '“你的职业规划是什么？”', o: [['“先把这个岗位做扎实，两三年内能独立负责一块业务。”', 2], ['“三年内坐到您这个位置。”', 1], ['“还没想好，先找份工作再说。”', 0]] },
+      { q: '“一个文科生，凭什么做这个岗位？”', o: [['“文科生会写，也懂人。我毕业论文研究的就是网络流行语怎么传播。”', 2], ['“我学东西很快。”', 1], ['“现在工作不好找，我什么都愿意试试。”', 0]] },
+      { q: '“领导安排的事，你觉得不对，会怎么做？”', o: [['“先按领导说的做，同时把我的想法和理由写下来，找合适的时候提。”', 2], ['“直接说出来，我认为对的就坚持。”', 1], ['“领导说什么就是什么。”', 0]] },
+    ],
+    media: [
+      { q: '“一篇推文的阅读量突然只有平时一半，你先做什么？”', o: [['先看后台：打开率、推荐流量、发布时间，找出是哪一环掉了', 2], ['换个更劲爆的标题再发一遍', 0], ['发朋友圈和群里求转发，先把数据拉回来', 1]] },
+      { q: '“老板想蹭一个刚出的热点，可那个热点跟品牌没什么关系。”', o: [['马上发，热点不等人', 0], ['找热点和产品能接上的角度，接不上就不硬蹭', 2], ['直接跟老板说这个不能发', 1]] },
+      { q: '“评论区有人骂我们的产品，你怎么处理？”', o: [['先删掉，免得影响别人', 0], ['先核实他说的是不是真的。是就道歉给方案，不是就客气地说明', 2], ['找几个号去评论区刷好评', 0]] },
+      { q: '“给新品柠檬茶写一句文案。”', o: [['“新品柠檬茶上市，欢迎品尝”', 1], ['“下午三点的困，一口就醒”', 2], ['“全城最好喝的柠檬茶”', 0]] },
+    ],
+    ad: [
+      { q: '“给一款老人手机写句广告语。”', o: [['“字大声大，一按就通”', 2], ['“科技改变生活”', 0], ['“孝心，看得见”', 1]] },
+      { q: '“甲方说：要大气，但也要接地气。你怎么改？”', o: [['照这两个方向各出一版，让他挑', 2], ['请他具体说说什么叫大气', 1], ['按自己的理解改，他应该懂', 0]] },
+      { q: '“你的方案被创意总监否了，他只说了两个字：不对。”', o: [['问清楚是方向不对，还是表达不对', 2], ['通宵重写一版全新的', 1], ['觉得他没看懂，原样再交一次', 0]] },
+      { q: '“比稿只剩一天，团队方向还没定。”', o: [['先定一个一句话讲得清的核心想法，再分工出物料', 2], ['每人各做一版，最后拼起来', 0], ['跟甲方申请延期', 1]] },
+    ],
+    admin: [
+      { q: '“周五领导要开会，会议室被别的部门占了。”', o: [['直接进去把人请出来', 0], ['先找对方商量能不能调时间，不行就订楼上的，再告诉领导', 2], ['告诉领导会议室没了', 1]] },
+      { q: '“两位领导同时让你办急事。”', o: [['谁先说就先做谁的', 1], ['问清各自的截止时间，排好顺序，跟两位都说一声', 2], ['两件事一起做', 0]] },
+      { q: '“年会预算砍了一半。”', o: [['抽奖奖品减半，其他照旧', 1], ['保住大家最在意的抽奖和聚餐，砍掉舞台布置', 2], ['跟老板说这点钱办不了', 0]] },
+      { q: '“一位老员工的报销单据不合规。”', o: [['睁一只眼闭一只眼', 0], ['按规定退回，告诉他缺哪几张、怎么补', 2], ['直接去找他的领导反映', 0]] },
+    ],
+    sales: [
+      { q: '“客户说：太贵了。”', o: [['“那我帮您申请个折扣。”', 0], ['“您是跟哪家比的？我们多出来的钱，主要花在了售后上……”', 2], ['“一分钱一分货。”', 1]] },
+      { q: '“第一次给陌生客户打电话，开口第一句说什么？”', o: [['“您好，打扰了，我是云帆软件的，想给您介绍一款产品。”', 1], ['“王总您好，看到您公司最近在招二十个客服，排班是不是挺头疼的？”', 2], ['“您好，我们在做活动，限时五折。”', 0]] },
+      { q: '“客户口头答应签约，又拖了一个月没动静。”', o: [['每天打一个电话催', 0], ['找他身边能说上话的人，问清楚卡在哪', 2], ['等他主动联系', 0]] },
+      { q: '“季度最后一周，业绩还差两成。”', o: [['把下季度的单子提前签了', 1], ['翻一遍老客户，找有增购需求的集中跟进', 2], ['找同事匀一单过来', 0]] },
+    ],
+    edu: [
+      { q: '“家长说：我再考虑考虑。”', o: [['“这周报名有优惠，过了就没了。”', 1], ['“您主要在顾虑什么？效果、价格，还是上课时间？”', 2], ['“好的，您考虑好了再联系我。”', 0]] },
+      { q: '“家长问：能保证提分吗？”', o: [['“肯定能，不提分全额退款。”', 0], ['“不能打包票。我们先给孩子做个测评，说清楚能帮在哪儿。”', 2], ['“我们老师都是名校毕业的。”', 1]] },
+      { q: '“孩子上了两次课就不想来了。”', o: [['先跟孩子聊聊原因，再找家长商量', 2], ['告诉家长：课都买了，不来就浪费了', 1], ['反正钱交了，不管了', 0]] },
+    ],
+    bigtech: [
+      { q: '“某个功能的日活跌了 10%，你怎么拆？”', o: [['先排除统计口径和节假日，再按新老用户、渠道、版本拆开看', 2], ['马上做一波拉新活动，把数据拉回来', 0], ['去问开发是不是出 bug 了', 1]] },
+      { q: '“新栏目冷启动，怎么找第一批作者？”', o: [['全站发公告招募', 1], ['从站内数据里找已经在写相关内容、互动高的人，一个个去邀请', 2], ['花钱请几个大 V 来写', 1]] },
+      { q: '“你做的活动数据很好，但用户投诉也多了。”', o: [['数据好就行，有投诉很正常', 0], ['看投诉集中在哪，评估会不会伤到长期留存', 2], ['下次不做了', 0]] },
+      { q: '“怎么判断一篇内容是好内容？”', o: [['看点赞数', 0], ['看读完率、互动、带来的关注和之后的留存，再结合内容本身', 2], ['看主编觉得好不好', 1]] },
+      { q: '“群面时有人一直抢话，你怎么办？”', o: [['声音比他更大', 0], ['接住他的观点，再把讨论拉回时间安排和分工', 2], ['不说话，让他表现', 0]] },
+    ],
+  };
+
+  const GOOD_HR = [
+    'HR 准点到，先给你倒了杯水，把薪资结构、试用期和五险一金一条条讲清楚。',
+    '面试官提前看过你的简历，第一个问题就问到了你毕业论文里的一个观点。',
+    '前台带你进会议室，面试官起身跟你握了手：“别紧张，就当聊聊天。”',
+  ];
+  const BAD_HR = [
+    { who: '迟到一小时的那位 HR', text: '约好十点，HR 十一点才进来。坐下第一句是：“简历带了吗？我没看。”',
+      retort: '“我等了一个小时，您连简历都没看？”', after: 'HR 愣了一下：“那你可以走了。”你确实走了，下楼的时候手还有点抖。' },
+    { who: '问你几年内结婚的那位 HR', text: 'HR 翻着简历问：“有对象吗？打算几年内结婚生孩子？”',
+      retort: '“这跟岗位有关系吗？”', after: 'HR 合上简历：“我们就是了解一下。”你知道这次没戏了，但心里挺痛快。' },
+    { who: '说你“就值这个价”的那位 HR', text: '“应届生嘛，说实话就值这个价。我们这是给你学习机会，别人倒贴都想来。”',
+      retort: '“那这个机会还是留给倒贴的人吧。”', after: '对面的人脸色变了。你起身道谢，出门的时候太阳正好。' },
+    { who: '要你凌晨秒回消息的那位面试官', text: '“我们是狼性团队。周末群里艾特你要秒回，凌晨也一样。能接受吧？”',
+      retort: '“那加班费怎么算？”', after: '“我们讲奉献，不讲加班费。”面试就这么结束了。' },
+    { who: '面试时一直玩手机的那位面试官', text: '面试官全程低头回微信。你说到一半，他抬头问：“你刚说你叫什么来着？”',
+      retort: '“要不您先回完消息，我等您？”', after: '他把手机扣在桌上，脸涨得通红：“今天先到这儿吧。”' },
+  ];
+  const REACT = [
+    ['面试官笑了笑，换了个话题。', '空气安静了两秒。'],
+    ['面试官“嗯”了一声，看不出满不满意。', '面试官没说话，翻到了简历下一页。'],
+    ['面试官点点头，在本子上写了几笔。', '面试官眼睛亮了一下：“有意思，接着说。”'],
+  ];
+
+  // ---- 投简历 → 面试邀约 ----
+  const WEIGHTS = {
+    wide: () => ({ media: 3, edu: 3, admin: 2, sales: 1.5, ad: 1, live: 1.5, scam: 1.5, bigtech: 0.1 }),
+    narrow: (s) => ({ ad: 3, media: 2, sales: 2, admin: 2, bigtech: s.stats.skill < 30 ? 0.2 : 0.5 + (s.stats.skill - 30) / 12 }),
+    fair: () => ({ media: 2, edu: 2, admin: 1.5, sales: 2, ad: 1, live: 1, scam: 0.5 }),
+  };
+  function makeInvite(s, track, at) {
+    const T = TRACKS[track];
+    const company = say(s, T.companies);
+    let level = 0, lo = T.start[0], hi = T.start[1];
+    const pv = s.prev;
+    // 有工作经验以后，邀约按上一份工作定级定薪
+    if (pv && !T.trap) {
+      if (pv.track === track) {
+        level = pv.level;
+        lo = r100(Math.max(T.start[0], pv.pay * 0.95));
+        hi = r100(pv.pay * 1.25);
+      } else {
+        level = clamp(pv.level - 1, 0, T.titles.length - 1);
+        lo = r100(Math.max(T.start[0], T.pay[level] * 0.9));
+        hi = r100(Math.max(T.start[1], T.pay[level] * 1.15));
+      }
+    }
+    return { uid: nextId(s), track, company, level, lo, hi, at };
+  }
+  function addInvites(s, n, mode) {
+    const w = WEIGHTS[mode](s);
+    const list = Object.keys(w).map((k) => ({ k, weight: w[k] }));
+    for (let i = 0; i < n; i++) s.invites.push(makeInvite(s, pickWeighted(s, list).k, s.turn + 1));
+  }
+  // 面试里的随机都在排进队列时定好，场景渲染时不再掷骰子
+  function enqueueInterview(s, inv) {
+    if (inv.track === 'scam' || inv.track === 'live') {
+      s.queue.push({ id: inv.track, p: { inv } });
+      return;
+    }
+    const T = TRACKS[inv.track];
+    const nT = inv.track === 'bigtech' ? 2 : 1;
+    const tq = shuffle(s, QS[inv.track].map((_, i) => i)).slice(0, nT).map((i) => ({ k: inv.track, i }));
+    const qs = [...tq, { k: 'general', i: rint(s, 0, QS.general.length - 1) }];
+    const ord = qs.map((q) => shuffle(s, QS[q.k][q.i].o.map((_, j) => j)));
+    s.queue.push({ id: 'hr', p: { inv, good: chance(s, T.goodHR), v: rint(s, 0, 99), qs, ord, i: 0, sc: 0, react: '', gb: 0 } });
+  }
+  function pushOffer(s, o) { s.offers.push({ uid: nextId(s), ...o }); }
+
+  // 谈薪结果：答题得分 + 专业和表达 + 状态 + 一点运气，减去岗位门槛
+  function settle(s, p, kind, ask, mid) {
+    const inv = p.inv, T = TRACKS[inv.track];
+    let score = p.sc / (2 * p.qs.length) + (s.stats.skill - 30) / 180 + (s.stats.talk - 30) / 180 + p.gb + (rnd(s) - 0.5) * 0.16;
+    if (s.stats.energy < 30) score -= 0.1;
+    if (s.stats.mood < 25) score -= 0.05;
+    const q = score - T.diff;
+    let pay = 0;
+    if (kind === 'hi') { if (q >= 0.18) pay = ask; else if (q >= 0.02 && chance(s, 0.5)) pay = mid; }
+    else if (kind === 'mid') { if (q >= 0.08) pay = ask; else if (q >= -0.06) pay = inv.lo; }
+    else if (q >= -0.16) pay = inv.lo;
+    if (!pay) {
+      if (q > -0.22 && chance(s, 0.2)) s.later.push({ at: s.turn + rint(s, 1, 2), id: 'callback', p: { inv } });
+      log(s, `面试${inv.company}：回去等通知`);
+      return '“今天就先到这儿，你回去等通知吧。”\n\n你知道，这句话的意思一般就是凉了。';
+    }
+    const pw = T.comm ? '底薪' : '月薪';
+    pushOffer(s, { track: inv.track, company: inv.company, level: inv.level, pay, exp: s.turn + 1 });
+    log(s, `拿到${inv.company}的 offer，${pw} ${money(pay)}`);
+    let text;
+    if (pay === ask && kind === 'hi') text = 'HR 愣了一下，低头算了算：“可以，就按你说的。”';
+    else if (pay === ask) text = 'HR 点点头：“这个数没问题。”';
+    else if (kind === 'hi') text = `HR 笑了：“这个数有点高。我们最多给到 ${money(pay)}，你考虑一下？”`;
+    else if (kind === 'mid') text = `HR 说：“应届生嘛，先按 ${money(pay)} 来，转正以后再看。”`;
+    else text = 'HR 爽快地答应了。你有点后悔，是不是报低了。';
+    return `${text}\n\n${inv.company}给了 offer：${T.titles[inv.level]}，${pw} ${money(pay)}。两周内有效，在下面的 offer 栏里决定接不接。`;
+  }
+
+  // ---- 随机事件 ----
+  // when：条件（lifesim-kit 的条件写法，另加 phase/house/track/month/level 和函数）
+  // once 默认 true；cooldown 按回合算；enter 在事件出现时立刻生效；每个事件至少有一个无条件的选项
+  const EVENTS = [
+    // —— 找工作期间 ——
+    { id: 'hostel_theft', when: [{ phase: 'search' }, { house: 'hostel' }], once: false, cooldown: 5,
+      enter: (s) => add(s, { cash: -200 }),
+      title: '青旅失窃', text: '早上醒来，枕边的充电宝和钱包里的 200 块现金都不见了。上铺的人一早就退房走了。',
+      choices: [
+        { label: '找前台调监控', go: (s) => { if (chance(s, 0.3)) { add(s, { cash: 200, mood: 2 }); return '监控拍到了。前台帮你追回了 200 块，充电宝没追回来。'; } add(s, { mood: -5 }); return '前台说那个角度是监控盲区。'; } },
+        { label: '自认倒霉', go: (s) => { add(s, { mood: -3 }); return '你把剩下的钱分成三份，一份塞进了鞋垫底下。'; } },
+      ] },
+    { id: 'sofa_tension', when: [{ phase: 'search' }, { house: 'sofa' }, (s) => s.sofaWeeks >= 2],
+      title: '寄人篱下', text: '同学的对象这周第三次问你：“工作找得怎么样了？”',
+      choices: [
+        { label: '主动买菜，做顿饭', go: (s) => { add(s, { cash: -150, mood: 2 }); return '饭桌上的气氛缓和了一些。同学对象夸你的番茄炒蛋不错。'; } },
+        { label: '赶紧找房子搬走', go: (s) => { s.queue.unshift({ id: 'house', p: { forced: true, msg: '你在租房群里翻了一晚上帖子。' } }); return '你说过两天就搬。同学说不急，他对象没说话。'; } },
+        { label: '装没听见', go: (s) => { add(s, { mood: -6 }); return '你戴上耳机，假装在看招聘信息。'; } },
+      ] },
+    { id: 'roommate_referral', when: [{ phase: 'search' }, { house: 'shared' }],
+      title: '室友内推', text: '合租的室友在一家广告公司做设计。听说你在找工作，他说他们组缺个文案，可以帮你内推。',
+      choices: [
+        { label: '麻烦他推一下', go: (s) => { const v = makeInvite(s, 'ad', s.turn + 1); s.invites.push(v); add(s, { network: 2 }); return `室友把你的简历直接递给了${v.company}的创意总监。面试约在下周。`; } },
+        { label: '不好意思麻烦人家', go: () => '你说谢谢，自己再投投看。' },
+      ] },
+    { id: 'landlord_up', when: [{ house: 'village' }],
+      title: '房东涨租', text: '房东在楼道里拦住你：“下个月起，房租涨一百。现在都这个价。”',
+      choices: [
+        { label: '跟他讲讲价', go: (s) => { if (chance(s, 0.2 + s.stats.talk / 150)) { add(s, { mood: 3 }); return '你说你一直按时交租，从来不拖。房东嘟囔了几句，答应先不涨。'; } s.rentAdj += 100; return '房东摆摆手：“不租就搬，后面排队的人多着呢。”'; } },
+        { label: '认了', go: (s) => { s.rentAdj += 100; return '每月多一百。你在记账本上改了个数。'; } },
+      ] },
+    { id: 'classmate_offer', when: [{ phase: 'search' }], once: false, cooldown: 8,
+      title: '同学群', text: '同学群里有人晒了大厂 offer，下面排了一长串“恭喜”。',
+      choices: [
+        { label: '跟着点个赞', go: (s) => { add(s, { mood: -4 }); return '你点完赞，把手机扣在了桌上。'; } },
+        { label: '私聊请教面试经验', go: (s) => { add(s, { talk: 2, skill: 2, network: 2, mood: -1 }); return '他发来一份整理好的面经，最后加了一句：“加油，你可以的。”'; } },
+        { label: '把群设成免打扰', go: (s) => { add(s, { mood: 1 }); return '世界清静了。'; } },
+      ] },
+    { id: 'paid_referral', when: [{ phase: 'search' }], once: false, cooldown: 6,
+      title: '付费内推', text: '有人私信你：“大厂内推，包过简历关，500 一次。”',
+      choices: [
+        { label: '转 500 试试', go: (s) => { add(s, { cash: -500 }); if (chance(s, 0.3)) { const v = makeInvite(s, 'bigtech', s.turn + 1); s.invites.push(v); return `居然是真的。${v.company}的 HR 约你下周面试。`; } add(s, { mood: -8 }); return '钱转过去以后，对方把你拉黑了。'; } },
+        { label: '不理', go: () => '你顺手点了举报。' },
+      ] },
+    { id: 'day_labor', when: [{ phase: 'search' }], once: false, cooldown: 4,
+      title: '日结', text: '地铁口有人举着牌子招日结：展会搭建，两天 400，当天结。',
+      choices: [
+        { label: '去干两天', go: (s) => { add(s, { cash: 400, energy: -15 }); return '搬了两天桁架，胳膊抬不起来。400 块现金揣在兜里，踏实。'; } },
+        { label: '算了', go: () => '你把这两天留给了投简历。' },
+      ] },
+    { id: 'old_roommate', when: [{ phase: 'search' }],
+      title: '老同学', text: '大学室友也在南屿，约你吃饭。他在一家软件公司做销售，说他们还在招人，提成很高。',
+      choices: [
+        { label: '请他帮忙推荐', go: (s) => { add(s, { cash: -120, network: 3 }); s.invites.push(makeInvite(s, 'sales', s.turn + 1)); return '他当场给主管发了微信。下周你去面试。'; } },
+        { label: '只吃饭，不聊工作', go: (s) => { add(s, { cash: -120, mood: 6 }); return '你们聊了一晚上大学的事，笑得服务员过来看了两次。'; } },
+      ] },
+    { id: 'rainstorm', when: [{ phase: 'search' }], once: false, cooldown: 6,
+      enter: (s) => add(s, { energy: -4 }),
+      title: '暴雨', text: '去面试的路上下起了暴雨。地铁口堵成一锅粥，你到的时候鞋里全是水。',
+      choices: [
+        { label: '先去洗手间收拾一下', go: (s) => { add(s, { mood: -2 }); return '你用烘手机吹了五分钟头发，迟到了三分钟。'; } },
+        { label: '直接进去', go: (s) => { add(s, { talk: 1 }); return '面试官看了你一眼，递过来一包纸巾。'; } },
+      ] },
+    { id: 'resume_talk', when: [{ phase: 'search' }],
+      title: '简历讲座', text: '招聘会上有个免费的简历讲座，主讲人是一家公司的 HR 总监。',
+      choices: [
+        { label: '去听', go: (s) => { add(s, { skill: 2, talk: 3, energy: -4 }); return '你把简历改了一遍：删掉了“性格开朗”，加上了三个具体的数字。'; } },
+        { label: '不去', go: () => '你觉得这种讲座都是卖课的。' },
+      ] },
+    { id: 'mom_ask', when: [{ phase: 'search' }], once: false, cooldown: 6,
+      title: '妈的电话', text: '妈打来电话：“工作找到了吗？钱够不够花？”',
+      choices: [
+        { label: '说实话', go: (s) => { add(s, { mood: 3 }); if (s.stats.cash < 2000 && chance(s, 0.6)) { add(s, { cash: 1000 }); return '挂了电话，妈转来 1000，备注写着：“吃好点。”'; } return '妈说：“慢慢找，别着急。”'; } },
+        { label: '报喜不报忧', go: (s) => { add(s, { mood: -3 }); return '你说挺好的，在挑 offer。挂了电话，你盯着天花板看了很久。'; } },
+      ] },
+
+    // —— 两个阶段都可能遇到 ——
+    { id: 'parents_kaogong', when: [{ month: { min: 4 } }, { flag: 'kaogong', eq: false }],
+      title: '考公', text: '爸打来电话：“你表姐考上了县里的公务员。你也回来考吧，家里给你报班。”',
+      choices: [
+        { label: '答应先备考试试', go: (s) => { s.flags.kaogong = true; s.exam = Math.max(s.exam, 10); add(s, { mood: 3 }); log(s, '开始备考公务员'); return '你下载了一个刷题 App。\n\n之后可以选「备考公务员」，每年 12 月考试。'; } },
+        { label: '我想在南屿再试试', go: (s) => { add(s, { mood: -3 }); return '爸叹了口气，没再说什么。'; } },
+      ] },
+    { id: 'spring_festival', when: [(s) => s.month >= 6 && [1, 2].includes(calMonth(s.month))], once: false, cooldown: 6,
+      title: '过年', text: '过年回家，七大姑八大姨轮流问你：一个月挣多少？有对象没？什么时候买房？',
+      choices: [
+        { label: '如实回答', go: (s) => { add(s, { mood: -4 }); return '你说完月薪，二姨“哦”了一声，转头去夸表哥了。'; } },
+        { label: '岔开话题，给小孩发红包', go: (s) => { add(s, { cash: -1000, mood: 2 }); return '小孩们围着你转，大人们也就不追问了。'; } },
+      ] },
+    { id: 'insomnia', when: [{ stat: 'mood', max: 22 }], once: false, cooldown: 4,
+      title: '失眠', text: '你已经连着三个晚上睡不着了，凌晨两点还在刷别人的旅行照片。',
+      choices: [
+        { label: '约朋友吃顿火锅', go: (s) => { add(s, { cash: -200, mood: 12 }); return '牛油锅底，冰啤酒。吃到一半，你们都笑了。'; } },
+        { label: '请两天假出去走走', when: (s) => Boolean(s.job), go: (s) => { add(s, { cash: -1500, mood: 22, energy: 10, perf: -4 }); return '你去了趟海边，什么都没想，就是走。'; } },
+        { label: '硬撑着', go: (s) => { add(s, { mood: -3 }); return '你买了瓶褪黑素。'; } },
+      ] },
+    { id: 'wedding', when: [{ month: { min: 18 } }],
+      title: '份子钱', text: '大学同学结婚，请你去帮忙。',
+      choices: [{ label: '去', go: (s) => { add(s, { cash: -800, mood: 3, network: 2 }); return '你随了 800。婚礼上放的，是你们宿舍当年一起唱过的歌。'; } }] },
+
+    // —— 上班以后 ——
+    { id: 'client_revise', when: [{ track: ['ad', 'media'] }], once: false, cooldown: 5,
+      title: '第八版', text: '甲方改到了第八版，最后说：“我觉得还是第一版好。”',
+      choices: [
+        { label: '笑着说好的', go: (s) => { add(s, { mood: -6, boss: 2 }); return '你把第一版重新发了过去，文件名叫“终稿-最终版-真的最终版”。'; } },
+        { label: '把八版并排发给他看', go: (s) => { if (chance(s, 0.5)) { add(s, { mood: 6, perf: 3 }); return '甲方沉默了一会儿：“那就第一版吧。辛苦了。”'; } add(s, { boss: -8 }); return '甲方向你领导投诉，说你“态度有问题”。'; } },
+      ] },
+    { id: 'credit_steal', when: [{ phase: 'work' }, { stat: 'perf', min: 55 }], once: false, cooldown: 8,
+      title: '功劳', text: '你熬了两周的方案，被领导拿到大会上讲了，从头到尾没提你的名字。',
+      choices: [
+        { label: '算了', go: (s) => { add(s, { mood: -8, boss: 2 }); return '你在工位上坐了很久，然后打开了下一个文档。'; } },
+        { label: '会后私下找领导聊', go: (s) => { if (chance(s, 0.5)) { add(s, { boss: 6, mood: 3 }); return '领导拍拍你的肩：“下次汇报你来讲。”'; } add(s, { boss: -6 }); return '领导说：“团队的成果，就是大家的成果。”'; } },
+        { label: '把原始文件发到部门群', go: (s) => { add(s, { perf: 6, boss: -18, network: 2, mood: 4 }); return '群里安静了很久，然后有人点了个赞。'; } },
+      ] },
+    { id: 'blame', when: [{ phase: 'work' }], once: false, cooldown: 8,
+      title: '甩锅', text: '项目出了岔子。同事在群里说是你给的数据有错，其实是他自己改了表格。',
+      choices: [
+        { label: '把修改记录截图发群里', go: (s) => { if (chance(s, 0.75)) { add(s, { perf: 3, boss: 2 }); return '修改记录一清二楚，他没再说话。'; } add(s, { boss: -4 }); return '领导在群里说：“别吵了，先解决问题。”你们俩各挨了一顿说。'; } },
+        { label: '私下找他说清楚', go: (s) => { add(s, { mood: -3 }); return '他说：“我也是着急。”然后什么也没改。'; } },
+        { label: '算了，背了', go: (s) => { add(s, { perf: -6, mood: -8 }); return '那天晚上你想了很久，到底是哪里做错了。'; } },
+      ] },
+    { id: 'teambuild', when: [{ phase: 'work' }], once: false, cooldown: 6,
+      title: '团建', text: '部门周六组织团建爬山，通知里写着“自愿参加”。',
+      choices: [
+        { label: '去', go: (s) => { add(s, { energy: -10, boss: 5, network: 2 }); return '爬到山顶，领导给每个人拍了张照。你笑得很标准。'; } },
+        { label: '不去', go: (s) => { add(s, { mood: 3, boss: -3 }); return '你在家睡到中午。周一听说，全组只有你没去。'; } },
+      ] },
+    { id: 'fever', when: [{ phase: 'work' }, { stat: 'energy', max: 40 }], once: false, cooldown: 5,
+      title: '发烧', text: '你烧到了 38.5 度，明天还有个重要的会。',
+      choices: [
+        { label: '请假', go: (s) => { add(s, { perf: -5, energy: 15 }); return '你在家睡了一天一夜。会上的事，同事帮你顶了。'; } },
+        { label: '吃片药，硬扛', go: (s) => { add(s, { perf: 4, energy: -10 }); if (chance(s, 0.25)) { add(s, { cash: -800 }); return '会开完，你就去了急诊，挂了两天水。'; } return '你戴着口罩讲完了，嗓子哑得像砂纸。'; } },
+      ] },
+    { id: 'headhunter', when: [{ phase: 'work' }, (s) => s.job.prob === 0 && (s.job.level >= 1 || s.stats.perf >= 70)], once: false, cooldown: 6,
+      title: '猎头', text: '一个猎头打来电话：“有个机会，薪资至少涨四成，聊聊？”',
+      choices: [
+        { label: '聊聊看', go: (s) => { const [o] = externalOffers(s, 1, true); return `猎头发来了${o.company}的 offer：${TRACKS[o.track].titles[o.level]}，月薪 ${money(o.pay)}。\n\n在下面的 offer 栏里，两回合内决定。`; } },
+        { label: '暂时不考虑', go: () => '猎头说：“那我们保持联系。”' },
+      ] },
+    { id: 'new_boss', when: [{ phase: 'work' }], once: false, cooldown: 10,
+      enter: (s) => { s.stats.boss = 45; s.job.watch += 0.04; },
+      title: '空降', text: '部门空降了一位新领导，第一周就宣布：“以前的规矩，都作废。”',
+      choices: [
+        { label: '主动约他聊聊', go: (s) => { add(s, { boss: 6, energy: -4 }); return '你把手头的项目讲了一遍。他听得很认真，最后说：“你挺清楚的。”'; } },
+        { label: '低调做事', go: () => '你把工位上的手办收进了抽屉。' },
+      ] },
+    { id: 'raise_talk', when: [{ phase: 'work' }, { stat: 'perf', min: 75 }, (s) => s.job.prob === 0], once: false, cooldown: 6,
+      title: '谈涨薪', text: '这个月你的数据是组里第一。同事劝你趁热去找领导谈涨薪。',
+      choices: [
+        { label: '去谈', go: (s) => { if (chance(s, s.stats.boss / 120)) { const old = s.job.pay; s.job.pay = r100(old * 1.08); log(s, `谈下涨薪，月薪 ${money(s.job.pay)}`); return `领导想了想：“行，我去申请。”\n\n月薪从 ${money(old)} 涨到 ${money(s.job.pay)}。`; } add(s, { boss: -4 }); return '领导说：“再等等，年底一起看。”'; } },
+        { label: '算了', go: () => '你想，好好干，领导都看得见。' },
+      ] },
+    { id: 'friend_loan', when: [{ phase: 'work' }, { month: { min: 8 } }],
+      title: '借钱', text: '大学同学找你借 3000，说下个月发了工资就还。',
+      choices: [
+        { label: '借', go: (s) => { add(s, { cash: -3000 }); s.later.push({ at: s.turn + 2, id: 'loanback', p: { amt: 3000 } }); return '你转了过去。他回了一长串“谢谢”。'; } },
+        { label: '只借 1000', go: (s) => { add(s, { cash: -1000 }); s.later.push({ at: s.turn + 2, id: 'loanback', p: { amt: 1000 } }); return '你说手头也紧，先借 1000。'; } },
+        { label: '不借', go: (s) => { add(s, { network: -2 }); return '他回了句“好吧”，之后再没找过你。'; } },
+      ] },
+    { id: 'rent_up', when: [{ phase: 'work' }, { house: ['village', 'shared', 'flat'] }], once: false, cooldown: 10,
+      title: '续租', text: (s) => `房东说，续租的话房租要涨一成，每月多 ${money(Math.round((HOUSES[s.house].rent + s.rentAdj) * 0.1))}。`,
+      choices: [
+        { label: '认了', go: (s) => { s.rentAdj += Math.round((HOUSES[s.house].rent + s.rentAdj) * 0.1); return '你签了新合同。'; } },
+        { label: '搬家', go: (s) => { s.queue.unshift({ id: 'house', p: { forced: true, msg: '你决定不续租了，开始找新房子。' } }); return '你跟房东说不续了。'; } },
+      ] },
+    { id: 'roommate_run', when: [{ phase: 'work' }, { house: 'shared' }],
+      enter: (s) => add(s, { cash: -1200, mood: -5 }),
+      title: '室友跑路', text: '合租的一个室友连夜搬走了。他欠的两个月房租和水电，房东让剩下的人分摊，你分到 1200。',
+      choices: [{ label: '认了', go: () => '你把他的微信备注改成了“1200”。' }] },
+    { id: 'side_unlock', when: [{ phase: 'work' }, { month: { min: 4 } }, { stat: 'skill', min: 28 }, { flag: 'side', eq: false }],
+      title: '副业', text: '同事说你写的周报比公司公众号还好看，劝你开个号，写写职场。',
+      choices: [
+        { label: '开个号试试', go: (s) => { s.flags.side = true; s.side = 200; log(s, '开了个号，写职场'); return '你注册了账号，第一篇写的是《毕业第一年，我交了三次押金》。\n\n之后可以选「经营副业」。粉丝越多，每月副业收入越多。'; } },
+        { label: '没空', go: () => '下了班，你只想躺着。' },
+      ] },
+    { id: 'side_viral', when: [{ flag: 'side' }, (s) => s.side >= 1000], once: false, cooldown: 8,
+      enter: (s) => { s.lastViral = rint(s, 15000, 40000); s.side += s.lastViral; add(s, { mood: 10 }); },
+      title: '爆了', text: (s) => `你写的一篇笔记突然爆了，一夜涨了 ${s.lastViral.toLocaleString('en-US')} 个粉丝。评论区有人说：“这写的就是我。”`,
+      choices: [{ label: '接着写', go: (s) => { log(s, `副业爆款，粉丝 ${s.side.toLocaleString('en-US')}`); } }] },
+    { id: 'big_client', when: [{ track: 'sales' }], once: false, cooldown: 6,
+      title: '大客户', text: '一个老客户要做集团采购，点名要你对接。',
+      choices: [
+        { label: '全力跟进', go: (s) => { add(s, { energy: -15 }); if (chance(s, 0.35 + s.stats.talk / 300)) { const c = r100(rint(s, 30000, 100000) * (1 + 0.4 * s.job.level)); earn(s, c); add(s, { perf: 10, mood: 6 }); log(s, `拿下集团客户，提成 ${money(c)}`); return `你跑了七趟客户公司，陪对方采购总监吃了三顿饭。合同签了，提成 ${money(c)}。`; } add(s, { perf: -3, mood: -4 }); return '最后一轮报价，客户选了别家，便宜两个点。'; } },
+        { label: '交给主管', go: (s) => { add(s, { boss: 4 }); return '主管拍拍你：“懂事。”'; } },
+      ] },
+    { id: 'media_viral', when: [{ track: 'media' }], once: false, cooldown: 6,
+      enter: (s) => add(s, { perf: 12, boss: 6, mood: 5 }),
+      title: '爆了', text: '你策划的一条短视频爆了，门店门口排起了长队。老板在群里发了个大红包。',
+      choices: [{ label: '抢红包', go: (s) => { const r = rint(s, 5, 88); add(s, { cash: r }); return `你抢到了 ${r} 块。`; } }] },
+    { id: 'pitch_win', when: [{ track: 'ad' }], once: false, cooldown: 6,
+      enter: (s) => add(s, { perf: 12, skill: 3, mood: 5 }),
+      title: '比稿赢了', text: '比稿赢了，客户点名要你写的那句 slogan。创意总监在会上说：“这句是新来的写的。”',
+      choices: [{ label: '继续', go: () => {} }] },
+    { id: 'admin_daily', when: [{ track: 'admin' }], once: false, cooldown: 8,
+      title: '十二年', text: '你在整理今年第三摞报销单。隔壁工位的大姐说：“我在这儿干了十二年了。”',
+      choices: [
+        { label: '挺好的，稳定', go: (s) => { add(s, { mood: 3 }); return '大姐给了你一个橘子。'; } },
+        { label: '开始偷偷学点别的', go: (s) => { add(s, { skill: 3, mood: -1 }); return '你在抽屉里放了一本《运营之光》。'; } },
+      ] },
+    { id: 'edu_target', when: [{ track: 'edu' }], once: false, cooldown: 6,
+      title: '冲业绩', text: '校长在晨会上宣布：这个月每人要签 15 单，签不到的扣绩效。',
+      choices: [
+        { label: '使劲打电话', go: (s) => { add(s, { perf: 6, energy: -12, talk: 2 }); return '你一天打了两百个电话，嗓子哑了，签了九单。'; } },
+        { label: '能签多少签多少', go: (s) => { add(s, { perf: -3, mood: 2 }); return '你没熬夜，也没逼家长。校长在晨会上点了你的名。'; } },
+      ] },
+    { id: 'annual_party', when: [{ phase: 'work' }, (s) => [12, 1, 2].includes(calMonth(s.month))], once: false, cooldown: 6,
+      title: '年会', text: '年会抽奖，主持人念到了你的工号。',
+      choices: [{ label: '上台领奖', go: (s) => { if (chance(s, 0.3)) { add(s, { cash: 3000, mood: 6 }); return '二等奖，一台平板。你转手挂到了二手平台上，卖了 3000。'; } add(s, { mood: 2 }); return '参与奖：一个印着公司 logo 的保温杯。'; } }] },
+    { id: 'defense', when: [{ track: 'bigtech' }, (s) => s.job.prob === 0], once: false, cooldown: 6,
+      title: '晋升答辩', text: '晋升答辩前一晚，PPT 还差一半。',
+      choices: [
+        { label: '通宵做完', go: (s) => { add(s, { energy: -20 }); s.flags.defense = true; return '第二天你顶着黑眼圈讲完了，评委点了点头。下次考核，晋升的机会大一些。'; } },
+        { label: '按时睡觉', go: (s) => { add(s, { energy: 5 }); return '你讲得有点磕巴，但脑子是清醒的。'; } },
+      ] },
+    { id: 'hr_egg', when: [{ flag: 'rudeHR' }, { month: { min: 30 } }, { level: { min: 2 } }],
+      title: '老熟人', text: (s) => (s.job.track === 'sales'
+        ? `客户那边新换了采购负责人。你接过名片，愣了一下：正是当年${s.rudeHR.who}。`
+        : `新来的下属递上简历。你愣了一下：正是当年${s.rudeHR.who}。`),
+      choices: [
+        { label: '公事公办', go: (s) => { s.flags.egg = s.job.track === 'sales' ? 'client' : 'sub'; add(s, { mood: 5 }); log(s, '又碰上了当年那位面试官'); return '对方显然也认出了你。之后每次见面，都客客气气。'; } },
+        { label: '笑着提一句当年', go: (s) => { s.flags.egg = s.job.track === 'sales' ? 'client' : 'sub'; add(s, { mood: 8 }); log(s, '又碰上了当年那位面试官'); return '对方的脸一下就红了：“那时候……不懂事。”你们都笑了。'; } },
+      ] },
+    { id: 'live_owed', when: [{ track: 'live' }, (s) => s.job.owed > 0], once: false, cooldown: 2,
+      title: '欠薪', text: (s) => `老板说这个月流水不好，工资先欠着，下个月一起发。算上之前的，已经欠你 ${money(s.job.owed)}。`,
+      choices: [
+        { label: '去劳动仲裁', go: (s) => { add(s, { energy: -10 }); if (chance(s, 0.35)) { const o = s.job.owed; s.job.owed = 0; earn(s, o); return `你拿出了聊天记录和转账截图。仲裁员帮你要回了 ${money(o)}。`; } add(s, { mood: -6 }); return '没有劳动合同，仲裁员说证据不足，让你回去补材料。'; } },
+        { label: '再等等', go: (s) => { add(s, { mood: -4 }); return '负责人在群里发了一段话，说要“和公司共渡难关”。'; } },
+        { label: '不干了', go: (s) => { loseJob(s, `从${s.job.company}离职，欠薪没要回来`); return '你把工牌扔在桌上走了。欠的钱，大概是要不回来了。'; } },
+      ] },
+    { id: 'layoff_rumor', when: [{ phase: 'work' }, (s) => s.job.prob === 0], once: false, cooldown: 10,
+      title: '风声', text: '茶水间里都在传，公司下个月要裁一批人。',
+      choices: [
+        { label: '悄悄更新简历', go: (s) => { if (s.stats.skill >= 30) { const [o] = externalOffers(s, 1); return `你悄悄面了一家，拿到了${o.company}的 offer，月薪 ${money(o.pay)}。下回合前决定接不接。`; } return '你投了几家，都没回音。'; } },
+        { label: '多加几天班，表现一下', go: (s) => { add(s, { perf: 6, energy: -10 }); return '那几天，你是全组最后一个走的。'; } },
+        { label: '听天由命', go: (s) => { add(s, { mood: -3 }); return '该来的总会来。'; } },
+      ] },
+    { id: 'drinking', when: [{ track: ['sales', 'edu', 'media', 'ad'] }], once: false, cooldown: 8,
+      title: '饭局', text: '领导带你去见客户，席间让你敬一圈酒。',
+      choices: [
+        { label: '硬着头皮喝', go: (s) => { add(s, { energy: -8, boss: 6, network: 3 }); return '回家的出租车上，你吐了一路。第二天，客户加了你的微信。'; } },
+        { label: '以茶代酒', go: (s) => { add(s, { boss: -3, mood: 2 }); return '领导的笑僵了一秒。客户倒是说：“年轻人，喝茶好。”'; } },
+      ] },
+  ];
+
+  // ---- 结局 ----
+  const ENDINGS = {
+    million: { title: '年入百万打工人', tag: '最好结局',
+      text: (s) => `你成了班里第一个年入百万的人。去年的收入是 ${money(last12(s))}。\n\n散场以后，你一个人走回学校门口。五年前你从这里出发，兜里揣着三千块，面试时连期望薪资都不敢往高了报。\n\n三千块进城的人，走到了这一步。` },
+    success: { title: '小有所成', tag: '好结局',
+      text: (s) => `去年你的收入是 ${money(last12(s))}。同学会上，有人找你内推，有人问你南屿的房价。\n\n${s.stats.cash >= 300000 ? '你在南屿付了首付，阳台上养着几盆绿萝。' : '你换了一套采光好的房子，阳台上养着几盆绿萝。'}\n\n加班到深夜的时候，你偶尔会想起第一次面试，连期望薪资都不敢说出口。` },
+    backbone: { title: '中层骨干', tag: '不错的结局',
+      text: (s) => `你现在是${s.job ? `${s.job.company}的${TRACKS[s.job.track].titles[s.job.level]}` : '一个正在看机会的老员工'}，身边带着几个刚毕业的年轻人。\n\n同学会上有人问你，第一年是怎么熬过来的。你想了想：“先找个住的地方，再说别的。”\n\n去年你的收入是 ${money(last12(s))}，存款 ${money(s.stats.cash)}。不算多，每一分都是自己挣的。` },
+    light: { title: '城市里的一盏灯', tag: '普通结局',
+      text: (s) => `同学会上你话不多，说自己${s.job ? `在${s.job.company}做${TRACKS[s.job.track].titles[s.job.level]}` : '最近在找工作'}。\n\n散场后你坐末班地铁回去。窗外一栋栋楼亮着灯，你想起五年前刚下高铁的那个晚上。\n\n日子不算好，也不算坏。这座城市的灯里，有一盏是你自己点的。` },
+    kaogong: { title: '回老家考公上岸', tag: '爸妈最满意的结局',
+      text: (s) => `你退了南屿的房子，把没用完的地铁卡留给了${s.house === 'shared' ? '室友' : '一个刚来南屿的学弟'}。\n\n县里的单位朝九晚五，食堂一顿饭五块钱。爸妈逢人就说孩子考上了。\n\n偶尔刷到南屿的新闻，你会多看两眼。` },
+    scammed: { title: '被骗光', tag: '坏结局',
+      text: () => '那 2980 块，是你在南屿最后的底气。报警回执还夹在钱包里，民警说这类案子很多，钱不一定追得回来。\n\n你给妈打电话，第一句话是：“我想回家。”\n\n后来你在网上看到有人曝光同一家公司，你在下面留了言：别交钱。' },
+    kenlao: { title: '回家啃老', tag: '最差结局',
+      text: (s, cause) => (cause === 'mood'
+        ? '第二天，你退了房，买了回家的票。妈什么也没问，给你炖了一锅汤。\n\n你在家里躺了很久。有时候会想，当初再撑一撑会怎样。但大多数时候，你什么也不想。'
+        : '你拖着来时那只行李箱，坐上了回老家的高铁。妈在出站口等你，一路上没提工作的事。\n\n晚饭时，爸只说了一句：“先歇着吧。”你的房间还是走时的样子，书架上那本《现代汉语》落了一层灰。\n\n之后的日子，你每天睡到中午。偶尔刷到南屿的招聘信息，看一眼，又划走了。') },
+  };
+  const ENDING_ORDER = ['million', 'success', 'backbone', 'light', 'kaogong', 'scammed', 'kenlao'];
+
+  function endGame(s, id, cause) {
+    const E = ENDINGS[id];
+    let text = E.text(s, cause);
+    if (s.flags.egg && ['million', 'success', 'backbone', 'light'].includes(id)) {
+      text += `\n\n饭桌上，你讲起${s.rudeHR.who}后来成了你${s.flags.egg === 'client' ? '客户' : '下属'}的事，全桌笑成一片。`;
+    }
+    s.ending = {
+      id, title: E.title, tag: E.tag, text, inc: last12(s), cash: s.stats.cash, months: s.month,
+      role: s.job ? `${TRACKS[s.job.track].titles[s.job.level]} · ${s.job.company}` : '待业',
+    };
+    s.phase = 'over';
+    s.queue = [];
+    s.result = null;
+    log(s, `结局：${E.title}`);
+  }
+
+  // ---- 搬家、离职 ----
+  function moveTo(s, k) {
+    const H = HOUSES[k];
+    s.stats.cash += s.deposit;
+    s.deposit = H.dep;
+    s.stats.cash -= H.move;
+    s.house = k;
+    s.rentAdj = 0;
+    if (k === 'sofa') s.sofaWeeks = 0;
+    log(s, `住进了${H.name}`);
+    return H.say + (H.move ? `\n\n一次交了 ${money(H.move)}，还剩 ${money(s.stats.cash)}。` : '');
+  }
+  function loseJob(s, why) {
+    const j = s.job;
+    s.prev = TRACKS[j.track].trap ? s.prev : { track: j.track, level: j.level, pay: j.pay };
+    s.job = null;
+    s.phase = 'search';
+    s.week = 0;
+    s.offers = [];
+    s.invites = [];
+    s.stats.perf = 50;
+    s.stats.boss = 50;
+    log(s, why);
+    if (s.house === 'dorm') s.queue.push({ id: 'house', p: { forced: true, msg: '离职了，宿舍得在这周搬出去。' } });
+  }
+
+  // ---- 场景：build 必须是纯函数（界面会反复调用），随机只在 go 里用 ----
+  const SC = {
+    check: () => ({ title: '', text: '', choices: [{ label: '继续', go: () => {} }] }),
+    info: (s, p) => ({ title: p.title, text: p.text, choices: [{ label: p.btn || '继续', go: () => {} }] }),
+    ev: (s, p) => {
+      const e = EVENTS.find((x) => x.id === p.e);
+      return {
+        title: e.title,
+        text: typeof e.text === 'function' ? e.text(s) : e.text,
+        choices: e.choices.filter((c) => check(s, c.when)).map((c) => ({ label: c.label, go: c.go })),
+      };
+    },
+    house: (s, p) => {
+      const keys = Object.keys(HOUSES).filter((k) => {
+        if (k === s.house) return false;
+        if (k === 'sofa') return Boolean(p.first);
+        if (k === 'dorm') return Boolean(s.job && TRACKS[s.job.track].dorm);
+        if (k === 'flat') return Boolean(s.job && s.job.pay >= 9000);
+        return true;
+      });
+      let text;
+      if (p.first) text = `高铁到站，南屿下着小雨。你得先找个地方住。\n\n兜里一共 ${money(s.stats.cash)}，每周吃饭大概要 250。租房群里能找到的是这些：`;
+      else text = `${p.msg || '你在租房群里翻了一晚上。'}\n\n现在住的是${HOUSES[s.house].name}，存款 ${money(s.stats.cash)}。搬走时押金会退回来。`;
+      const choices = keys.map((k) => ({ label: HOUSES[k].name, sub: `${HOUSES[k].cost}。${HOUSES[k].note}`, go: (s) => moveTo(s, k) }));
+      if (!p.first && !p.forced) choices.push({ label: '不搬了', go: () => {} });
+      return { title: p.first ? '先找个落脚的地方' : '找房子', text, choices };
+    },
+    dorm: (s) => ({
+      title: '公司宿舍', text: `公司有员工宿舍，四人间，每月 300。你现在住的是${HOUSES[s.house].name}。`,
+      choices: [{ label: '搬进宿舍', go: (s) => moveTo(s, 'dorm') }, { label: '不搬', go: () => {} }],
+    }),
+    hr: (s, p) => {
+      const T = TRACKS[p.inv.track];
+      const title = `面试 · ${p.inv.company}`;
+      const head = `岗位：${T.titles[p.inv.level]}，${money(p.inv.lo)}–${money(p.inv.hi)}${T.comm ? '（底薪）' : ''}\n\n`;
+      if (p.good) {
+        return { title, text: head + GOOD_HR[p.v % GOOD_HR.length],
+          choices: [{ label: '开始面试', go: (s) => { add(s, { mood: 2 }); s.queue.unshift({ id: 'q', p: { ...p, gb: 0.04 } }); } }] };
+      }
+      const b = BAD_HR[p.v % BAD_HR.length];
+      return { title, text: head + b.text, choices: [
+        { label: '忍着，继续面', go: (s) => { add(s, { mood: -6 }); s.queue.unshift({ id: 'q', p }); } },
+        { label: b.retort, go: (s) => { add(s, { mood: 6 }); s.flags.rudeHR = true; if (!s.rudeHR) s.rudeHR = { who: b.who }; log(s, `在${p.inv.company}怼了面试官`); return b.after; } },
+        { label: '起身走人', go: (s) => { add(s, { mood: 2 }); log(s, `面试${p.inv.company}，中途走了`); return '你说了句“打扰了”，拿起包走了出去。电梯门关上的时候，你长出了一口气。'; } },
+      ] };
+    },
+    q: (s, p) => {
+      const ref = p.qs[p.i];
+      const Q = QS[ref.k][ref.i];
+      const rounds = p.qs.length === 3 ? ['一面', '二面', 'HR 面'] : ['专业问题', 'HR 面'];
+      return {
+        title: `${p.inv.company} · ${rounds[p.i]}`,
+        text: (p.react ? p.react + '\n\n' : '') + Q.q,
+        choices: p.ord[p.i].map((j) => ({ label: Q.o[j][0], score: Q.o[j][1], go: (s) => {
+          const sc = Q.o[j][1];
+          s.queue.unshift({ id: p.i + 1 < p.qs.length ? 'q' : 'pay', p: { ...p, i: p.i + 1, sc: p.sc + sc, react: say(s, REACT[sc]) } });
+        } })),
+      };
+    },
+    pay: (s, p) => {
+      const inv = p.inv, T = TRACKS[inv.track];
+      const mid = r100((inv.lo + inv.hi) / 2), hiAsk = r100(inv.hi * 1.15);
+      const opts = [['往高了报', hiAsk, 'hi'], ['报中间', mid, 'mid'], ['报个保底的', inv.lo, 'lo']];
+      return {
+        title: `${inv.company} · 谈薪`,
+        text: (p.react ? p.react + '\n\n' : '') + `最后，HR 问：“你的期望薪资是多少？”\n\n招聘启事上写的是 ${money(inv.lo)}–${money(inv.hi)}${T.comm ? '，另有提成' : ''}。`,
+        choices: opts.map(([l, v, k]) => ({ label: `${l}：${money(v)}`, go: (s) => settle(s, p, k, v, mid) })),
+      };
+    },
+    scam: (s, p) => ({
+      title: `面试 · ${p.inv.company}`,
+      text: `岗位：高薪文员，${money(p.inv.lo)}–${money(p.inv.hi)}\n\nHR 夸你“气质好，一看就踏实”，五分钟就说你被录用了。\n\n随后她推过来一张单子：“入职前要上岗培训，培训费 2980，第一个月工资里全额返还。今天交，明天就能排课。”`,
+      choices: [
+        { label: s.stats.cash >= 2980 ? '交钱，抓住机会' : '钱不够，她说可以帮你办培训贷', go: (s) => {
+          s.stats.cash -= 2980;
+          s.flags.scammed = true;
+          log(s, `给${p.inv.company}交了 2980 培训费`);
+          s.later.push({ at: s.turn + 1, id: 'info', eff: { mood: -25 }, p: { title: '人去楼空', text: '周一早上九点，你到了那栋写字楼。那一层的玻璃门上贴着“招租”，前台空空荡荡。\n\nHR 的电话已经关机，微信也把你删了。你在楼道里站了很久。' } });
+          return '你把钱转了过去。她笑着说：“下周一九点，直接来公司报到。”';
+        } },
+        { label: '说回去考虑一下', go: (s) => { add(s, { mood: 3 }); log(s, '识破了一个培训费骗局'); return '回去的路上你搜了一下这家公司。投诉平台上几十条，套路一模一样：先录用，再收培训费，然后人间蒸发。'; } },
+      ],
+    }),
+    live: (s, p) => ({
+      title: `面试 · ${p.inv.company}`,
+      text: '面试只用了十分钟。负责人说：“储备干部，月薪六千，包住宿，明天就能上班。合同嘛，等转正再签。”\n\n你注意到办公室的窗帘大白天都拉着，几个人对着补光灯在喊“三、二、一，上链接”。',
+      choices: [
+        { label: '先把 offer 拿着', go: (s) => { pushOffer(s, { track: 'live', company: p.inv.company, level: 0, pay: 6000, exp: s.turn + 1 }); log(s, `拿到${p.inv.company}的 offer`); return '负责人把你拉进了一个叫“星耀家人群”的微信群。offer 在下面，接不接你自己定。'; } },
+        { label: '婉拒', go: () => '你说再考虑一下。出门的时候，你听见里面又在喊“家人们”。' },
+      ],
+    }),
+    callback: (s, p) => ({
+      title: '一个电话',
+      text: `之前让你“回去等通知”的${p.inv.company}打来电话：“原来定的人没来报到。你还感兴趣吗？薪资只能给到 ${money(p.inv.lo)}。”`,
+      choices: [
+        { label: '感兴趣', go: (s) => { pushOffer(s, { track: p.inv.track, company: p.inv.company, level: p.inv.level, pay: p.inv.lo, exp: s.turn + 1 }); log(s, `${p.inv.company}回电，给了 offer`); return '“那我把 offer 发你邮箱。”挂了电话，你在原地蹦了一下。'; } },
+        { label: '谢谢，不用了', go: () => '你客气地拒绝了。说出口的那一刻，你觉得自己有点不一样了。' },
+      ],
+    }),
+    loanback: (s, p) => ({
+      title: '那笔钱', text: `你借给同学的 ${money(p.amt)}，已经过去好一阵了。`,
+      choices: [{ label: '问问他', go: (s) => {
+        if (chance(s, 0.6)) { add(s, { cash: p.amt, network: 2 }); return '他秒回：“正想找你！”钱转过来了，还约你周末吃烧烤。'; }
+        add(s, { mood: -5 }); return '消息发出去，旁边出现了一个红色感叹号。';
+      } }],
+    }),
+    quit: (s) => ({
+      title: '辞职', text: `确定要从${s.job.company}辞职吗？主动辞职没有补偿，之后要重新找工作。`,
+      choices: [
+        { label: '确定辞职', go: (s) => { loseJob(s, `从${s.job.company}辞职`); return '你把工牌放在桌上，最后看了一眼工位，走出了大楼。'; } },
+        { label: '再想想', go: () => {} },
+      ],
+    }),
+    bailout: (s) => {
+      const end = (s) => endGame(s, s.flags.scammed ? 'scammed' : 'kenlao');
+      if (s.bailouts === 0) {
+        return {
+          title: '余额不足',
+          text: `你的余额变成了 ${money(s.stats.cash)}。犹豫了一晚上，你还是给家里打了电话。\n\n妈什么也没多问，转来 3000，最后说了一句：“实在不行，就回来吧。”`,
+          choices: [
+            { label: '再坚持一下', go: (s) => { s.bailouts = 1; s.stats.cash = 3000; add(s, { mood: -12 }); log(s, '爸妈转来 3000'); return '你把钱分成了几份：房租、饭钱、交通。每一份都算得清清楚楚。'; } },
+            { label: '买票回家', go: end },
+          ],
+        };
+      }
+      return { title: '又没钱了', text: `余额又一次见底：${money(s.stats.cash)}。这一次，你没好意思再开口。`, choices: [{ label: '收拾行李', go: end }] };
+    },
+    breakdown: (s) => (s.flags.grace
+      ? { title: '撑不住了', text: '又是一个睡不着的晚上。这一次，你连请假的力气都没有了。', choices: [{ label: '回家', go: (s) => endGame(s, 'kenlao', 'mood') }] }
+      : { title: '撑不住了', text: '那天在地铁上，你突然就哭了出来。周围的人都低着头看手机，没人注意到你。', choices: [
+        { label: s.job ? '请两周假，缓一缓' : '什么都不干，歇两周', go: (s) => { s.flags.grace = true; s.stats.mood = 35; add(s, { cash: -1500, perf: -15, energy: 20 }); log(s, '歇了两周'); return '你关掉了所有通知，在江边走了好几天。回来的时候，心里松了一点。'; } },
+        { label: '回家', go: (s) => endGame(s, 'kenlao', 'mood') },
+      ] }),
+    exam: (s) => ({
+      title: '公务员考试',
+      text: `十二月，你${s.job ? '请了两天假，' : ''}回老家参加考试。考场在县一中，你坐的位置，正好是高三时的教室。\n\n备考进度：${Math.min(100, s.exam)}。`,
+      choices: [{ label: '进考场', go: (s) => {
+        const p = clamp((s.exam - 40) / 100 + s.stats.skill / 500, 0.03, 0.8);
+        if (chance(s, p)) { s.queue.unshift({ id: 'exam_pass' }); return '交卷的时候，你觉得申论写得挺顺。'; }
+        s.exam = Math.round(s.exam * 0.6);
+        add(s, { mood: -8 });
+        log(s, '考公没考上');
+        return '成绩出来，差了几分。爸在电话里说：“明年再来。”';
+      } }],
+    }),
+    exam_pass: () => ({
+      title: '上岸了', text: '公示名单上有你的名字。爸妈在电话里激动得说不出话，你妈已经开始挨个通知亲戚了。',
+      choices: [
+        { label: '回老家报到', go: (s) => endGame(s, 'kaogong') },
+        { label: '放弃，留在南屿', go: (s) => { s.flags.kaogong = false; add(s, { mood: 4 }); log(s, '考上了，但留在了南屿'); return '你给爸妈打了很久的电话。最后爸说：“你自己的路，你自己走吧。”'; } },
+      ],
+    }),
+    reunion: () => ({
+      title: '毕业五周年同学会',
+      text: '班长订了学校后门那家老馆子，来了二十几个人。\n\n菜上到一半，班长端着杯子站起来：“挨个说说吧，这五年都在干嘛？”\n\n轮到你了。',
+      choices: [{ label: '说说这五年', go: (s) => {
+        const inc = last12(s);
+        endGame(s, inc >= 1e6 ? 'million' : inc >= 5e5 ? 'success' : inc >= 1.5e5 ? 'backbone' : 'light');
+      } }],
+    }),
+  };
+  const build = (s, item) => SC[item.id](s, item.p || {});
+
+  // ---- 每回合能做的事 ----
+  const FOOD_WEEK = 250;
+  const ACTIONS = [
+    // 找工作：一回合一周
+    { id: 'haitou', phase: 'search', label: '海投简历', hint: '精力 −5，下周约到 2–3 个面试，坑也多',
+      run: (s) => { add(s, { energy: -5 }); const n = rint(s, 2, 3); addInvites(s, n, 'wide'); return `你把简历投给了招聘软件上所有能投的岗位。约到了 ${n} 个面试，都在下周。`; } },
+    { id: 'jingtou', phase: 'search', label: '精挑细投', hint: '精力 −8，岗位更好，约到的少；专业越高越容易约到大厂',
+      run: (s) => { add(s, { energy: -8, mood: -1 }); const n = 1 + (chance(s, 0.25 + s.stats.skill / 160) ? 1 : 0); addInvites(s, n, 'narrow'); return `你逐个研究了公司，每份简历都改了一遍。约到了 ${n} 个面试，在下周。`; } },
+    { id: 'fair', phase: 'search', label: '跑招聘会', hint: '精力 −14，人脉 +3，下周 1–2 个面试',
+      run: (s) => { add(s, { energy: -14, network: 3, mood: -2 }); const n = rint(s, 1, 2); addInvites(s, n, 'fair'); return `体育馆里人挤人，你递出去二十几份简历，加了一堆 HR 的微信。约到了 ${n} 个面试。`; } },
+    { id: 'study', phase: 'search', label: '刷题准备', hint: '专业 +3，表达 +3，精力 −6',
+      run: (s) => { add(s, { skill: 3, talk: 3, energy: -6 }); return say(s, ['你在图书馆刷了一周面经，把常见问题都过了一遍。', '你对着镜子练自我介绍，练到能一口气说完不卡壳。']); } },
+    { id: 'gig', phase: 'search', label: '打零工', hint: '存款 +500 左右，精力 −20',
+      run: (s) => { const g = rint(s, 450, 650); add(s, { cash: g, energy: -20, mood: -3 }); return `你在商场门口发了三天传单，又去餐厅帮了两天厨。挣了 ${money(g)}。`; } },
+    { id: 'rest', phase: 'search', label: '躺平休息', hint: '精力 +25，心态 +8',
+      run: (s) => { add(s, { energy: 25, mood: 8 }); return say(s, ['你睡到自然醒，下楼吃了碗粉，去江边走了走。', '你什么都没干，看完了一整季综艺。']); } },
+    { id: 'call', phase: 'search', label: '给家里打电话', hint: '心态回升，也可能挨说',
+      run: (s) => {
+        s.calls += 1;
+        add(s, { mood: Math.max(2, 9 - s.calls) });
+        if (s.stats.cash < 1500 && chance(s, 0.4)) { add(s, { cash: 500 }); return '你没提钱的事。挂了电话，妈还是转来 500，备注：“吃好点。”'; }
+        if (s.month >= 3 && !s.seen.includes('parents_kaogong') && chance(s, 0.35)) { trigger(s, 'parents_kaogong'); return '聊着聊着，爸接过了电话。'; }
+        return say(s, ['妈问你吃得怎么样，你说挺好的。', '爸在电话那头说：“别太累。”然后就没话了。', '妈说家里的猫又胖了，给你发了十几张照片。']);
+      } },
+    // 上班：第一年和试用期一回合一个月，之后一回合一个季度
+    { id: 'work', phase: 'work', label: '认真干活', hint: '表现 +10 左右，精力 −10',
+      run: (s) => { add(s, { perf: Math.round(8 + s.stats.skill / 15), energy: -10, boss: 1 }); add(s, { skill: 1 }, gainMult(s)); return say(s, ['你把手头的活一件件做完，周报写得很漂亮。', '你没请一天假，交出去的东西挑不出毛病。']); } },
+    { id: 'overtime', phase: 'work', label: '加班冲刺', hint: '表现 +18 左右，精力 −22，心态 −5',
+      run: (s) => { add(s, { perf: Math.round(15 + s.stats.skill / 12), energy: -22, mood: -5, boss: 4 }); add(s, { skill: 2 }, gainMult(s)); return say(s, ['你连着加了两周的班，周末也在回消息。', '凌晨一点的写字楼，你是这一层最后一盏灯。']); } },
+    { id: 'slack', phase: 'work', label: '摸鱼', hint: '精力 +18，心态 +8，表现 −6，可能被抓',
+      run: (s) => {
+        const j = s.job;
+        add(s, { perf: -6, energy: 18, mood: 8 });
+        const p = j.watch + 0.08 * j.streak + (s.stats.boss < 30 ? 0.08 : 0);
+        j.streak += 1;
+        if (!chance(s, p)) return say(s, ['你开着文档，刷了一下午短视频。没人发现。', '你在工位上睡了个午觉，醒来已经四点了。', '你带薪上了半小时厕所，顺便把一部剧追完了。']);
+        if (j.prob > 0 || j.warn >= 1) {
+          const first = j.prob > 0;
+          add(s, { mood: -10 });
+          loseJob(s, `摸鱼被抓，被${j.company}辞退`);
+          return first
+            ? '领导在你身后站了五分钟，你的屏幕上是购物车。\n\n下午 HR 就找你谈话：试用期员工，不用等考核了。你被辞退了。'
+            : '这是第二次被抓了。领导什么都没说，直接叫来了 HR。\n\n你被辞退了。';
+        }
+        j.warn = 1;
+        j.watch += 0.08;
+        add(s, { boss: -15, perf: -8 });
+        log(s, '摸鱼被领导抓到一次');
+        return '你正在刷短视频，领导从背后经过，停了两秒。\n\n散会后他把你叫住：“上班时间，注意点。”这算一次警告。再被抓到，就得走人。';
+      } },
+    { id: 'learn', phase: 'work', label: '下班学习', hint: '专业 +5，表达 +2，精力 −8',
+      run: (s) => { add(s, { energy: -8, perf: -2 }); add(s, { skill: 5, talk: 2 }, gainMult(s)); return say(s, ['你报了个网课，下班后啃完了三本专业书。', '你把行业报告一篇篇读完，记了满满一本笔记。']); } },
+    { id: 'social', phase: 'work', label: '搞好关系', hint: '领导印象 +7，人脉 +3，表达 +2，花 300',
+      run: (s) => { add(s, { boss: 7, mood: 2, cash: -300, energy: -6, perf: -1 }); add(s, { network: 3, talk: 2 }, gainMult(s)); return say(s, ['你请组里的人喝了奶茶，午饭也常跟领导一起吃。', '你主动帮隔壁组救了个急，人家记住了你。']); } },
+    { id: 'lookout', phase: 'work', label: '偷偷看机会', hint: '可能拿到跳槽 offer，也可能被领导发现', when: (s) => s.job.prob === 0,
+      run: (s) => {
+        add(s, { energy: -6, perf: -2 });
+        let caught = '';
+        if (chance(s, 0.15)) {
+          add(s, { boss: -20 });
+          s.job.watch += 0.05;
+          log(s, '偷偷面试被领导撞见');
+          caught = '你请假去面试，回来时在电梯口碰见领导：“哟，穿这么正式？”他没再多问，但你知道他心里有数了。\n\n';
+        }
+        const n = (s.stats.skill >= 30 ? 1 : 0) + (s.stats.perf >= 70 || s.stats.network >= 40 ? 1 : 0);
+        if (!n) return caught + '你投了一圈简历，都没回音。看来还得再攒攒本事。';
+        const os = externalOffers(s, n);
+        return caught + `你请了两次假，偷偷面了几家，拿到 ${os.length} 个 offer。在下面的 offer 栏里，下回合前决定。`;
+      } },
+    { id: 'side', phase: 'work', label: '经营副业', hint: '粉丝 +，精力 −10', when: { flag: 'side' },
+      run: (s) => {
+        const g = Math.round(rint(s, 300, 900) * (1 + s.stats.skill / 50) * gainMult(s));
+        s.side += g;
+        add(s, { energy: -10, perf: -2, mood: 2 });
+        return `你下班后写了几篇职场笔记，涨了 ${g.toLocaleString('en-US')} 个粉丝。现在一共 ${s.side.toLocaleString('en-US')} 粉，副业每月能挣 ${money(s.side / 1000 * 60)} 左右。`;
+      } },
+    { id: 'vacation', phase: 'work', label: '休年假', hint: '精力 +30，心态 +15，花 1500，每年一次', when: (s) => s.job.prob === 0 && s.vacYear !== yearOf(s.month),
+      run: (s) => { s.vacYear = yearOf(s.month); add(s, { energy: 30, mood: 15, cash: -1500, perf: -3 }); return say(s, ['你去海边待了五天，手机调了静音。', '你回了趟老家，妈天天变着花样做饭。', '你一个人去了大理，在洱海边发了一下午呆。']); } },
+    // 两个阶段都能做
+    { id: 'exam', phase: 'any', label: '备考公务员', hint: '备考进度 +，精力 −12，每年 12 月考', when: { flag: 'kaogong' },
+      run: (s) => {
+        s.exam = Math.min(120, s.exam + Math.round((8 + s.stats.skill / 20) * gainMult(s)));
+        add(s, { energy: -12, mood: -3, ...(s.job ? { perf: -4 } : {}) });
+        return `你刷了一沓行测题，又背了两篇申论范文。备考进度 ${Math.min(100, s.exam)}。`;
+      } },
+  ];
+  const available = (s, a) => (a.phase === 'any' || a.phase === s.phase) && check(s, a.when);
+
+  // ---- 跳槽 offer ----
+  function externalOffers(s, n, headhunter) {
+    const j = s.job, st = s.stats, out = [];
+    for (let i = 0; i < n; i++) {
+      const opts = [{ k: j.track, weight: TRACKS[j.track].trap ? 0 : 3 }];
+      for (const k of ['media', 'ad', 'sales']) if (k !== j.track) opts.push({ k, weight: 1 });
+      if (j.track !== 'bigtech' && st.skill >= 45 && st.talk >= 30) opts.push({ k: 'bigtech', weight: 1 + (st.skill - 45) / 10 });
+      const t = pickWeighted(s, opts).k, T = TRACKS[t];
+      let level, pay;
+      if (t === j.track) {
+        const up = st.perf >= 72 && j.level < T.titles.length - 1 && st.skill >= T.req[j.level + 1];
+        level = j.level + (up ? 1 : 0);
+        pay = r100(j.pay * ((headhunter ? 1.35 : 1.18) + rnd(s) * 0.25));
+        if (up) pay = Math.max(pay, T.pay[level]);
+      } else {
+        level = clamp(j.level - 1, 0, T.titles.length - 1);
+        pay = r100(Math.max(T.pay[level] * (0.95 + rnd(s) * 0.2), j.pay * (headhunter ? 1.35 : 1.1)));
+      }
+      const pool = T.companies.filter((c) => c !== j.company);
+      const o = { uid: nextId(s), track: t, company: pool.length ? say(s, pool) : T.companies[0], level, pay, exp: s.turn + 1 };
+      s.offers.push(o);
+      out.push(o);
+    }
+    return out;
+  }
+
+  // ---- 每月结算 ----
+  function salesComm(s) {
+    const j = s.job, st = s.stats;
+    const p = clamp(0.06 + st.talk / 260 + st.network / 420 + st.perf / 520, 0.04, 0.75);
+    let c = 0;
+    for (let k = 0; k <= j.level; k++) if (chance(s, p)) c += rint(s, 1500, 6000) * (1 + 0.5 * j.level);
+    if (chance(s, 0.01 + st.network / 1200 + j.level * 0.015)) {
+      const big = r100(rint(s, 40000, 180000) * (1 + 0.4 * j.level));
+      c += big;
+      add(s, { mood: 10, perf: 8 });
+      log(s, `签下大单，提成 ${money(big)}`);
+      s.queue.push({ id: 'info', p: { title: '签下大单', text: `跟了大半年的客户终于签了。销售群里炸了锅，老板发了个 888 的红包。\n\n这一单的提成：${money(big)}。` } });
+    }
+    return Math.round(c);
+  }
+  function eduComm(s) {
+    let c = 0;
+    for (let k = 0; k < 4; k++) if (chance(s, 0.15 + s.stats.talk / 220)) c += 500 * (1 + 0.3 * s.job.level);
+    return Math.round(c);
+  }
+  function collapse(s) {
+    const c = s.job.company;
+    s.queue.push({ id: 'info', p: { title: '机构跑路了', text: `周一早上，${c}门口围满了家长。卷帘门上贴着一张 A4 纸：“因经营困难，暂停营业。”\n\n老板的电话打不通。你这个月的工资和提成，都没了。` } });
+    add(s, { mood: -15 });
+    loseJob(s, `${c}跑路，失业了`);
+  }
+  function layoff(s) {
+    const j = s.job;
+    if (TRACKS[j.track].trap) {
+      s.queue.push({ id: 'info', p: { title: '老板跑路了', text: `直播间的补光灯一夜之间全撤了。老板的朋友圈停在三天前的“感恩家人们”。${j.owed ? `欠你的 ${money(j.owed)}，打了水漂。` : ''}没有合同，你连去哪儿告都不知道。` } });
+      add(s, { mood: -12 });
+      loseJob(s, `${j.company}老板跑路`);
+      return;
+    }
+    const comp = (Math.floor(j.months / 12) + 1) * j.pay;
+    s.stats.cash += comp;
+    s.queue.push({ id: 'info', p: { title: '被裁员了', text: `周五下午，HR 约你去小会议室。桌上放着一盒纸巾和一份协议。\n\n“公司业务调整，你的岗位被优化了。”按 N+1 赔偿，你拿到 ${money(comp)}。` } });
+    add(s, { mood: -10 });
+    loseJob(s, `被${j.company}裁员，拿到 N+1 ${money(comp)}`);
+  }
+  function review(s, yearEnd) {
+    const j = s.job, T = TRACKS[j.track];
+    const sc = s.stats.perf * 0.7 + s.stats.boss * 0.3 + (rnd(s) - 0.5) * 16;
+    const g = sc >= 80 ? 'S' : sc >= 66 ? 'A' : sc >= 48 ? 'B' : 'C';
+    const title = yearEnd ? '年终考核' : '年中考核';
+    const lines = [`${yearEnd ? '年终' : '年中'}绩效：${g}。`];
+    const old = j.pay;
+    const raise = { S: 0.18, A: 0.1, B: 0.03, C: 0 }[g];
+    if (raise) { j.pay = r100(j.pay * (1 + raise)); lines.push(`月薪从 ${money(old)} 涨到 ${money(j.pay)}。`); }
+    let pp = { S: 0.7, A: 0.3, B: 0, C: 0 }[g];
+    if (pp && s.flags.defense) pp += 0.2;
+    delete s.flags.defense;
+    pp *= T.promo ?? 1;
+    if (pp > 0 && j.level < T.titles.length - 1) {
+      const need = T.req[j.level + 1];
+      if (s.stats.skill < need) lines.push(`本来有机会晋升，但专业能力还差一截（要 ${need}，你是 ${s.stats.skill}）。`);
+      else if (chance(s, pp)) {
+        j.level += 1;
+        j.pay = Math.max(r100(j.pay * 1.25), T.pay[j.level]);
+        lines.push(`晋升为${T.titles[j.level]}！月薪涨到 ${money(j.pay)}。`);
+        log(s, `晋升为${T.titles[j.level]}`);
+      }
+    }
+    if (yearEnd) {
+      const bonus = r100(old * T.bonus[g] * Math.min(1, j.months / 12));
+      if (bonus > 0) { earn(s, bonus); lines.push(`年终奖 ${money(bonus)}。`); } else lines.push('年终奖：没有。');
+    }
+    s.stats.perf = Math.round(50 + (s.stats.perf - 50) * 0.4);
+    if (g === 'S' || g === 'A') j.warn = 0;
+    if (g === 'C') {
+      j.c += 1;
+      if (j.c >= 2) {
+        s.queue.push({ id: 'info', p: { title, text: lines.join('\n') + '\n\n连续两次 C。HR 找你谈话：“你可能不太适合这个岗位。”你被辞退了。' } });
+        add(s, { mood: -12 });
+        loseJob(s, `连续两次绩效 C，被${j.company}辞退`);
+        return;
+      }
+      lines.push('你被放进了绩效改进计划。下次再拿 C，就得走人。');
+    } else j.c = 0;
+    s.queue.push({ id: 'info', p: { title, text: lines.join('\n') } });
+    log(s, `${yearEnd ? '年终' : '年中'}绩效 ${g}`);
+  }
+  // monthly：上班期间按月算生活费和床位费；找工作期间这两项按周扣
+  function monthTick(s, monthly) {
+    s.month += 1;
+    const ci = calMonth(s.month);
+    const j = s.job;
+    if (j) {
+      const T = TRACKS[j.track];
+      j.months += 1;
+      const risk = T.layoff * (s.stats.perf < 45 ? 2.5 : s.stats.perf > 75 ? 0.4 : 1) * (j.prob > 0 ? 0.5 : 1);
+      if (T.collapse && chance(s, T.collapse)) collapse(s);
+      else if (chance(s, risk)) layoff(s);
+      else {
+        let pay = j.pay;
+        if (T.unpaid && chance(s, T.unpaid)) { j.owed += pay; pay = 0; }
+        let inc = pay;
+        if (T.comm === 'sales') inc += salesComm(s);
+        if (T.comm === 'edu') inc += eduComm(s);
+        if (T.stock && T.stock[j.level]) inc += Math.round(T.stock[j.level] / 12);
+        earn(s, inc);
+        if (j.months === 1 && s.jobsHeld === 1 && pay) {
+          s.queue.push({ id: 'info', p: { title: '第一份工资', text: `工资到账的短信来了：${money(inc)}。你截了个图，想了想，还是没发朋友圈。\n\n给爸妈各转了 200，备注：“不用省。”` } });
+          add(s, { cash: -400, mood: 8 });
+        }
+      }
+    }
+    if (s.flags.side) { s.side = Math.round(s.side * 1.02); earn(s, Math.round(s.side / 1000 * 60)); }
+    const H = HOUSES[s.house];
+    s.stats.cash -= H.rent ? H.rent + s.rentAdj : 0;
+    if (monthly) {
+      s.stats.cash -= 1200 + Math.round((s.job ? s.job.pay : 0) * 0.1);
+      if (s.house === 'hostel') s.stats.cash -= H.week * 4;
+      if (s.house === 'sofa') s.sofaWeeks += 4;
+    }
+    if (s.job && s.job.prob === 0 && s.job.months >= 4 && (ci === 1 || ci === 7)) review(s, ci === 1);
+    if (s.flags.kaogong && ci === 12 && s.exam >= 20) s.queue.push({ id: 'exam' });
+  }
+
+  function probation(s) {
+    const j = s.job;
+    if (!j || j.prob <= 0) return;
+    j.prob -= 1;
+    if (j.prob > 0) return;
+    const perf = s.stats.perf;
+    if (perf >= 55 || (perf >= 42 && chance(s, s.stats.boss / 100))) {
+      const old = j.pay;
+      j.pay = r100(j.pay * 1.05);
+      s.queue.push({ id: 'info', p: { title: '转正', text: `试用期结束，你转正了。月薪从 ${money(old)} 调到 ${money(j.pay)}。\n\n之后每年 1 月和 7 月各考核一次。` } });
+      log(s, '转正');
+    } else {
+      s.queue.push({ id: 'info', p: { title: '试用期没过', text: 'HR 把你叫进会议室：“这三个月你的表现，没达到我们的预期。”\n\n你收拾东西的时候，同事们都盯着屏幕。' } });
+      add(s, { mood: -12 });
+      loseJob(s, `${j.company}试用期没过`);
+    }
+  }
+
+  // ---- 回合结束 ----
+  function trigger(s, e) {
+    if (typeof e === 'string') e = EVENTS.find((x) => x.id === e);
+    if (!e || (e.once !== false && s.seen.includes(e.id))) return;
+    if (!s.seen.includes(e.id)) s.seen.push(e.id);
+    if (e.cooldown) s.cool[e.id] = s.turn + e.cooldown;
+    if (e.enter) e.enter(s);
+    s.queue.push({ id: 'ev', p: { e: e.id } });
+  }
+  function maybeEvent(s, p) {
+    if (!chance(s, p)) return;
+    const pool = EVENTS.filter((e) => check(s, e.when) && !(e.once !== false && s.seen.includes(e.id)) && !((s.cool[e.id] ?? -1) > s.turn));
+    const e = pickWeighted(s, pool);
+    if (e) trigger(s, e);
+  }
+  function laterDue(s) {
+    const due = s.later.filter((x) => x.at <= s.turn);
+    s.later = s.later.filter((x) => x.at > s.turn);
+    for (const x of due) { if (x.eff) add(s, x.eff); s.queue.push({ id: x.id, p: x.p || {} }); }
+  }
+  function expireOffers(s) {
+    for (const o of s.offers.filter((o) => o.exp <= s.turn)) log(s, `${o.company}的 offer 过期了`);
+    s.offers = s.offers.filter((o) => o.exp > s.turn);
+  }
+  function endSearchTurn(s) {
+    const H = HOUSES[s.house];
+    s.stats.cash -= FOOD_WEEK + (H.week || 0);
+    add(s, { energy: 5 + H.e, mood: H.m });
+    if (s.house === 'sofa') s.sofaWeeks += 1;
+    // 本周的面试，一周最多去两个
+    const due = s.invites.filter((v) => v.at <= s.turn);
+    const go = due.slice(0, 2);
+    const missed = due.slice(2).filter((v) => v.at < s.turn);
+    for (const v of go) enqueueInterview(s, v);
+    for (const v of missed) log(s, `错过了${v.company}的面试`);
+    const done = new Set([...go, ...missed].map((v) => v.uid));
+    s.invites = s.invites.filter((v) => !done.has(v.uid));
+    laterDue(s);
+    expireOffers(s);
+    s.week += 1;
+    if (s.week >= 4) { s.week = 0; monthTick(s, false); }
+    if (s.phase === 'search' && s.invites.length < 3 && chance(s, 0.25)) addInvites(s, 1, 'wide');
+    maybeEvent(s, 0.35);
+    s.turn += 1;
+    s.queue.push({ id: 'check' });
+  }
+  function endWorkTurn(s, n) {
+    for (let k = 0; k < n && s.phase === 'work'; k++) monthTick(s, true);
+    const H = HOUSES[s.house];
+    add(s, { energy: 8 + H.e - (s.job && TRACKS[s.job.track].trap ? 8 : 0), mood: 1 + H.m });
+    if (s.job) { add(s, { perf: -2 }); probation(s); }
+    laterDue(s);
+    if (s.phase === 'work') expireOffers(s);
+    maybeEvent(s, n === 3 ? 0.65 : 0.45);
+    s.turn += 1;
+    s.queue.push({ id: 'check' });
+  }
+  function runCheck(s) {
+    if (s.phase === 'over') return;
+    if (s.month >= 60) { s.queue.unshift({ id: 'reunion' }); return; }
+    if (s.job ? s.stats.cash < -3000 : s.stats.cash < 0) { s.queue.unshift({ id: 'bailout' }); return; }
+    if (s.stats.mood <= 0) { s.queue.unshift({ id: 'breakdown' }); return; }
+    if (s.stats.energy <= 0) {
+      const fee = rint(s, 800, 2000);
+      add(s, { cash: -fee, mood: -8, perf: -10 });
+      s.stats.energy = 45;
+      log(s, '累病了');
+      s.queue.unshift({ id: 'info', p: { title: '病倒了', text: `你连着几天头晕，最后在${s.job ? '工位上' : '出租屋里'}晕了过去。\n\n医生说是过度劳累，开了药让你好好休息。医药费 ${money(fee)}。` } });
+    }
+    if (s.house === 'sofa' && s.sofaWeeks >= 4) {
+      s.queue.unshift({ id: 'house', p: { forced: true, msg: '同学委婉地说，他对象下周要搬过来住了。你得找新住处了。' } });
+    }
+  }
+  function flush(s) {
+    while (s.queue.length && s.queue[0].id === 'check') { s.queue.shift(); runCheck(s); }
+  }
+
+  // ---- 对外接口 ----
+  function snap(s) { return { ...s.stats, job: Boolean(s.job) }; }
+  function diff(b, s) {
+    const out = [];
+    for (const k of KEYS) {
+      if ((k === 'perf' || k === 'boss') && (!b.job || !s.job)) continue;
+      const d = s.stats[k] - b[k];
+      if (d) out.push({ k, name: STAT_NAMES[k], d });
+    }
+    return out;
+  }
+  const idle = (s) => s.phase !== 'over' && !s.result && !s.queue.length;
+
+  function newGame(name, seed) {
+    const s = {
+      v: 1, rng: (seed ?? Math.floor(Math.random() * 4294967296)) >>> 0, uid: 0,
+      name: String(name || '小林').trim().slice(0, 8) || '小林',
+      phase: 'search', month: 0, week: 0, turn: 0,
+      stats: { cash: 3000, energy: 80, mood: 70, skill: 20, talk: 20, network: 5, perf: 50, boss: 50 },
+      flags: {}, seen: [], cool: {}, later: [],
+      house: null, deposit: 0, rentAdj: 0, sofaWeeks: 0,
+      invites: [], offers: [], job: null, prev: null,
+      earn: {}, bailouts: 0, calls: 0, exam: 0, side: 0, vacYear: 0, jobsHeld: 0, rudeHR: null, lastViral: 0,
+      queue: [{ id: 'house', p: { first: true } }], result: null, log: [], ending: null,
+    };
+    log(s, '揣着 3000 块，到了南屿');
+    return s;
+  }
+  function view(s) {
+    if (s.phase === 'over') return { mode: 'ending' };
+    if (s.result) return { mode: 'result', ...s.result };
+    if (s.queue.length) {
+      const sc = build(s, s.queue[0]);
+      return { mode: 'scene', title: sc.title, text: sc.text, choices: sc.choices.map((c) => ({ label: c.label, sub: c.sub, score: c.score })) };
+    }
+    return { mode: 'actions', actions: ACTIONS.filter((a) => available(s, a)).map((a) => ({ id: a.id, label: a.label, hint: a.hint })) };
+  }
+  function act(s, id) {
+    if (!idle(s)) return;
+    const a = ACTIONS.find((x) => x.id === id);
+    if (!a || !available(s, a)) return;
+    const before = snap(s);
+    const mode = s.phase;
+    const n = mode === 'work' ? monthsPerTurn(s) : 0;
+    const when = stamp(s);
+    if (id !== 'slack' && s.job) s.job.streak = 0;
+    const text = a.run(s);
+    if (mode === 'search') endSearchTurn(s); else endWorkTurn(s, n);
+    s.result = { title: a.label, text, when, deltas: diff(before, s) };
+    flush(s);
+  }
+  function choose(s, i) {
+    if (s.result || !s.queue.length || s.phase === 'over') return;
+    const sc = build(s, s.queue[0]);
+    const c = sc.choices[i];
+    if (!c) return;
+    s.queue.shift();
+    const before = snap(s);
+    const r = c.go(s);
+    if (s.phase === 'over') return;
+    if (typeof r === 'string') s.result = { title: sc.title, text: r, deltas: diff(before, s) };
+    flush(s);
+  }
+  function next(s) { if (!s.result) return; s.result = null; flush(s); }
+  function accept(s, id) {
+    if (!idle(s)) return;
+    const o = s.offers.find((x) => x.uid === id);
+    if (!o) return;
+    const T = TRACKS[o.track];
+    const old = s.job;
+    if (old && !TRACKS[old.track].trap) s.prev = { track: old.track, level: old.level, pay: old.pay };
+    s.job = { track: o.track, company: o.company, level: o.level, pay: o.pay, prob: 3, months: 0, warn: 0, streak: 0, c: 0, watch: T.watch, owed: 0 };
+    s.phase = 'work';
+    s.week = 0;
+    s.offers = [];
+    s.invites = [];
+    s.later = s.later.filter((x) => x.id !== 'callback');
+    s.stats.perf = 50;
+    s.stats.boss = 50;
+    s.jobsHeld += 1;
+    const pw = T.comm ? '底薪' : '月薪';
+    log(s, `${old ? '跳槽到' : '入职'}${o.company}，${T.titles[o.level]}，${pw} ${money(o.pay)}`);
+    let text = `${old ? `你给${old.company}递了辞呈。` : ''}你入职了${o.company}，岗位是${T.titles[o.level]}，${pw} ${money(o.pay)}。\n\n试用期三个月，看表现决定转不转正。试用期里摸鱼被抓，会直接被辞退。`;
+    if (T.trap) text += '\n\n合同的事，负责人说“过阵子再说”。';
+    s.queue.push({ id: 'info', p: { title: old ? '跳槽' : '入职', text } });
+    if (T.dorm && s.house !== 'dorm') s.queue.push({ id: 'dorm' });
+  }
+  function decline(s, id) { if (idle(s)) s.invites = s.invites.filter((x) => x.uid !== id); }
+  function move(s) { if (idle(s) && s.house) s.queue.push({ id: 'house', p: {} }); }
+  function quit(s) { if (idle(s) && s.job) s.queue.push({ id: 'quit' }); }
+
+  return {
+    newGame, view, act, choose, next, accept, decline, move, quit, idle,
+    stamp, money, last12, monthsPerTurn, calMonth, yearOf,
+    TRACKS, HOUSES, ENDINGS, ENDING_ORDER, FOOD_WEEK,
+  };
+})();
+globalThis.Core = Core;
+/*CORE-END*/
+</script>
+<script>
+
+(() => {
+  const C = globalThis.Core;
+  const KEY = { auto: 'sqjc.auto.v1', slot: 'sqjc.slot.v1', album: 'sqjc.album.v1' };
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* 无痕模式等情况下存不了，游戏照常玩 */ } },
+    del(k) { try { localStorage.removeItem(k); } catch { /* 同上 */ } },
+  };
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id) => document.getElementById(id);
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const paras = (t) => esc(t).split('\n\n').map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+  let S = null;
+
+  function readJSON(raw) { try { const x = JSON.parse(raw); return x && x.v === 1 ? x : null; } catch { return null; } }
+  function album() { try { return JSON.parse(store.get(KEY.album) || '[]'); } catch { return []; } }
+  function addAlbum(id) { const a = album(); if (!a.includes(id)) { a.push(id); store.set(KEY.album, JSON.stringify(a)); } }
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    clearTimeout(toast.h);
+    toast.h = setTimeout(() => { t.textContent = ''; }, 2400);
+  }
+
+  function albumHTML() {
+    const got = album();
+    return `<h3>结局图鉴 · 已解锁 ${got.length}/${C.ENDING_ORDER.length}</h3><div class="slots">${C.ENDING_ORDER.map((id) =>
+      `<div class="slot${got.includes(id) ? ' got' : ''}">${got.includes(id) ? esc(C.ENDINGS[id].title) : '？？？'}</div>`).join('')}</div>`;
+  }
+
+  function meter(name, v) {
+    return `<div class="meter${v < 25 ? ' low' : ''}"><span>${name}</span><span class="bar"><i style="width:${v}%"></i></span><span class="v">${v}</span></div>`;
+  }
+
+  function renderPass() {
+    const s = S, j = s.job, st = s.stats;
+    const T = j && C.TRACKS[j.track];
+    const role = j ? `${T.titles[j.level]} · ${j.company}${j.prob > 0 ? ' · 试用期' : ''}` : '待业中';
+    const house = s.house ? C.HOUSES[s.house].name : '还没找到住处';
+    const pct = Math.min(100, (s.month / 60) * 100);
+    const stops = ['出发', '1年', '2年', '3年', '4年', '同学会'];
+    const meters = [meter('精力', st.energy), meter('心态', st.mood)];
+    if (j) meters.push(meter('表现', st.perf), meter('领导', st.boss));
+    const chips = [['专业', st.skill], ['表达', st.talk], ['人脉', st.network]];
+    if (j) chips.push([T.comm ? '底薪' : '月薪', C.money(j.pay)]);
+    if (s.month > 0) chips.push(['近一年收入', C.money(C.last12(s))]);
+    if (s.flags.side) chips.push(['粉丝', s.side.toLocaleString('en-US')]);
+    if (s.flags.kaogong) chips.push(['备考', Math.min(100, s.exam)]);
+    $('pass').innerHTML = `
+      <div class="pass-band"><span class="brand">三千块进城</span><span class="mono date">${esc(C.stamp(s))}</span></div>
+      <div class="pass-body">
+        <div class="bal"><span class="lbl">存款</span><span class="mono num${st.cash < 0 ? ' neg' : ''}">${C.money(st.cash)}</span></div>
+        <div class="who"><b>${esc(s.name)}</b><span>${esc(role)}</span><span>住 ${esc(house)}</span></div>
+        <div class="metro" aria-label="五年进度：${Math.round(pct)}%">
+          <div class="rail"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>
+          <ol class="stops">${stops.map((x, i) => `<li class="${s.month >= i * 12 ? 'on' : ''}">${x}</li>`).join('')}</ol>
+        </div>
+        <div class="meters">${meters.join('')}</div>
+        <div class="chips">${chips.map(([k, v]) => `<span class="chip">${k}<b>${esc(v)}</b></span>`).join('')}</div>
+      </div>`;
+  }
+
+  function costLine(s) {
+    const H = C.HOUSES[s.house];
+    const rent = H.rent ? H.rent + s.rentAdj : 0;
+    if (s.phase === 'search') return `每周饭钱 ${C.money(C.FOOD_WEEK)}${H.week ? `，床位 ${C.money(H.week)}` : ''}${rent ? `；每 4 周交一次房租 ${C.money(rent)}` : ''}。投出去的简历，下周去面试。`;
+    const n = C.monthsPerTurn(s);
+    const living = 1200 + Math.round(s.job.pay * 0.1) + (H.week ? H.week * 4 : 0);
+    return `这一回合是 ${n === 3 ? '一个季度' : '一个月'}。每月房租 ${C.money(rent)}，生活费约 ${C.money(living)}。${s.job.prob > 0 ? `试用期还剩 ${s.job.prob} 个月。` : ''}`;
+  }
+
+  function renderStage() {
+    const v = C.view(S), el = $('stage');
+    if (v.mode === 'ending') {
+      const e = S.ending;
+      addAlbum(e.id);
+      el.innerHTML = `<div class="card ending">
+        <p class="eyebrow">${esc(e.tag)}</p>
+        <h2 class="end-title">${esc(e.title)}</h2>
+        <div class="txt">${paras(e.text)}</div>
+        <dl class="sum">
+          <dt>最近一年收入</dt><dd>${C.money(e.inc)}</dd>
+          <dt>存款</dt><dd>${C.money(e.cash)}</dd>
+          <dt>最后的身份</dt><dd>${esc(e.role)}</dd>
+          <dt>在南屿待了</dt><dd>${e.months} 个月</dd>
+        </dl>
+        <div class="album">${albumHTML()}</div>
+        <div class="free"><button class="primary" type="button" data-again>再来一次</button></div>
+      </div>`;
+      return;
+    }
+    if (v.mode === 'result') {
+      const ds = (v.deltas || []).map((d) => {
+        const val = d.k === 'cash' ? C.money(Math.abs(d.d)) : Math.abs(d.d);
+        return `<span class="delta ${d.d > 0 ? 'up' : 'down'}">${d.name} ${d.d > 0 ? '+' : '−'}${val}</span>`;
+      }).join('');
+      el.innerHTML = `<div class="card">
+        ${v.when ? `<p class="kicker mono">${esc(v.when)}</p>` : ''}
+        <h2>${esc(v.title)}</h2>
+        <div class="txt">${paras(v.text)}</div>
+        ${ds ? `<div class="deltas">${ds}</div>` : '<div class="deltas"></div>'}
+        <button class="primary" type="button" data-next>继续</button>
+      </div>`;
+      return;
+    }
+    if (v.mode === 'scene') {
+      el.innerHTML = `<div class="card">
+        <h2>${esc(v.title)}</h2>
+        <div class="txt">${paras(v.text)}</div>
+        <div class="choices">${v.choices.map((c, i) => `<button class="choice" type="button" data-choose="${i}"><span>${esc(c.label)}</span>${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</button>`).join('')}</div>
+      </div>`;
+      return;
+    }
+    const head = S.phase === 'search' ? '这周做什么？' : C.monthsPerTurn(S) === 3 ? '这个季度主要做什么？' : '这个月主要做什么？';
+    el.innerHTML = `<div class="card">
+      <h2>${head}</h2>
+      <p class="sub">${esc(costLine(S))}</p>
+      <div class="grid">${v.actions.map((a) => `<button class="act" type="button" data-act="${a.id}"><b>${esc(a.label)}</b><small>${esc(a.hint)}</small></button>`).join('')}</div>
+      <div class="free">
+        <button class="ghost" type="button" data-move>换住处</button>
+        ${S.job ? '<button class="ghost" type="button" data-quit>辞职</button>' : ''}
+      </div>
+    </div>`;
+  }
+
+  function renderTickets() {
+    const s = S, el = $('tickets');
+    if (s.phase === 'over' || (!s.offers.length && !s.invites.length)) { el.innerHTML = ''; return; }
+    const idle = C.idle(s);
+    const offers = s.offers.map((o) => {
+      const T = C.TRACKS[o.track];
+      const left = o.exp - s.turn;
+      return `<div class="ticket offer"><div>
+        <span class="tag">OFFER · ${left <= 0 ? '这回合不接就过期' : `还能等 ${left + 1} 回合`}</span>
+        <b>${esc(T.titles[o.level])}</b>
+        <small>${esc(o.company)} · ${T.comm ? '底薪' : '月薪'} ${C.money(o.pay)} · ${esc(T.blurb)}</small>
+      </div><button class="take" type="button" data-accept="${o.uid}" ${idle ? '' : 'disabled'}>接受</button></div>`;
+    }).join('');
+    const invites = s.invites.map((v) => {
+      const T = C.TRACKS[v.track];
+      return `<div class="ticket"><div>
+        <span class="tag">${v.at <= s.turn ? '本周面试' : '下周面试'}</span>
+        <b>${esc(T.titles[v.level])}</b>
+        <small>${esc(v.company)} · ${C.money(v.lo)}–${C.money(v.hi)} · ${esc(T.blurb)}</small>
+      </div><button class="ghost" type="button" data-decline="${v.uid}" ${idle ? '' : 'disabled'}>不去了</button></div>`;
+    }).join('');
+    el.innerHTML = (offers ? `<h3 class="sec-title">手上的 offer</h3>${offers}` : '')
+      + (invites ? `<h3 class="sec-title">面试邀约 · 每周最多去两个</h3>${invites}` : '');
+  }
+
+  function renderRoute() {
+    $('route').innerHTML = `<h3 class="sec-title">行程记录</h3><ol class="stations">${S.log.slice(0, 40).map((e) =>
+      `<li><span class="mono t">${esc(e.t)}</span><span>${esc(e.x)}</span></li>`).join('')}</ol>`;
+  }
+
+  function render() {
+    const start = $('start'), game = $('game');
+    if (!S) {
+      start.hidden = false;
+      game.hidden = true;
+      $('album').innerHTML = albumHTML();
+      return;
+    }
+    start.hidden = true;
+    game.hidden = false;
+    renderPass();
+    renderStage();
+    renderTickets();
+    renderRoute();
+    store.set(KEY.auto, JSON.stringify(S));
+  }
+
+  function keepStageInView() {
+    const r = $('stage').getBoundingClientRect();
+    if (r.top < 0 || r.top > window.innerHeight * 0.75) $('stage').scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
+  }
+
+  let armed = 0;
+  $('app').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const d = b.dataset;
+    if (b.id === 'go') {
+      S = C.newGame($('nm').value);
+    } else if (!S && !('load' in d)) {
+      if ('save' in d || 'restart' in d) toast('还没开始呢');
+      return;
+    } else if ('choose' in d) C.choose(S, Number(d.choose));
+    else if ('act' in d) C.act(S, d.act);
+    else if ('next' in d) C.next(S);
+    else if ('accept' in d) C.accept(S, Number(d.accept));
+    else if ('decline' in d) C.decline(S, Number(d.decline));
+    else if ('move' in d) C.move(S);
+    else if ('quit' in d) C.quit(S);
+    else if ('again' in d) { S = null; store.del(KEY.auto); }
+    else if ('save' in d) {
+      if (S.phase === 'over') { toast('这一局已经结束了'); return; }
+      store.set(KEY.slot, JSON.stringify(S));
+      toast(store.get(KEY.slot) ? `已存档：${C.stamp(S)}` : '这个浏览器存不了档');
+      return;
+    } else if ('load' in d) {
+      const x = readJSON(store.get(KEY.slot));
+      if (!x) { toast('还没有存档'); return; }
+      S = x;
+      toast(`已读档：${C.stamp(S)}`);
+    } else if ('restart' in d) {
+      if (!armed) {
+        armed = 1;
+        b.textContent = '再点一次，确认重来';
+        setTimeout(() => { armed = 0; b.textContent = '重新开始'; }, 3000);
+        return;
+      }
+      armed = 0;
+      b.textContent = '重新开始';
+      S = null;
+      store.del(KEY.auto);
+    } else return;
+    render();
+    if (S) keepStageInView();
+  });
+  $('nm').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('go').click(); });
+
+  function start(data) {
+    S = (data && data.S) || readJSON(store.get(KEY.auto));
+    render();
+  }
+  window.claude?.hot?.snapshot?.(() => ({ S }));
+  if (window.claude?.hot?.ready) window.claude.hot.ready(start);
+  else start(window.claude?.hot?.data ?? {});
+})();
+</script>
