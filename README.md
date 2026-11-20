@@ -23,6 +23,7 @@
 | `src/c4_scenes.js` | 场景和结局 |
 | `src/c5_engine.js` | 行动、回合结算、对外接口 |
 | `src/d_ui.js` | 界面 |
+| `src/e_art.js` | 插图：用 canvas 画的南屿夜景，近一年挣得越多，亮灯的窗户越多 |
 | `src/sim.mjs` | 用机器人批量试玩，看各结局的比例 |
 
 改完 `src/` 以后运行 `./build.sh` 重新生成 `index.html`。调平衡：

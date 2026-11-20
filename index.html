@@ -1,5 +1,11 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="一个文科生揣着三千块进城打工五年的文字养成小游戏。">
+<meta name="theme-color" content="#0a7482">
 <title>三千块进城</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+QingKe+HuangYou&display=swap">
@@ -34,7 +40,10 @@
   --line: #36b0be; --line-ink: #04161a; --amber: #e6ad47; --danger: #f07a61; --good: #6dc48c;
   --chip: #1c2930; --ticket: #17262e; color-scheme: dark;
 }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background: var(--bg); }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.7; }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2.5px solid var(--amber); outline-offset: 2px; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
@@ -45,13 +54,17 @@ button { font: inherit; color: inherit; }
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 20px 40px;
   display: flex; flex-direction: column; gap: 16px;
+  min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
 }
+#start { flex: 1 1 auto; }
 #game { display: flex; flex-direction: column; gap: 16px; }
 #game[hidden], #start[hidden] { display: none !important; }
 
 /* 开始页 */
 .start { display: flex; flex-direction: column; gap: 16px; padding-top: 12px; }
-.eyebrow { margin: 0; font-size: 12.5px; letter-spacing: .16em; color: var(--line); }
+.eyebrow { margin: 0; font-size: 14px; letter-spacing: .16em; color: var(--line); }
 .title { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 15vw, 76px); line-height: 1; letter-spacing: .02em; text-wrap: balance; }
 .lede { margin: 0; color: var(--muted); line-height: 1.9; }
 .train {
@@ -59,34 +72,41 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--rule); position: relative;
 }
 .train .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.train .st { font-size: 22px; font-weight: 700; }
-.train .no { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
-.train .small { font-size: 12.5px; color: var(--muted); }
+.train .st { font-size: 24px; font-weight: 700; }
+.train .no { font-family: var(--font-mono); font-size: 14px; color: var(--muted); }
+.train .small { font-size: 14px; color: var(--muted); }
 .train .arrow { flex: 1; border-bottom: 2px dashed var(--rule); margin: 0 10px; transform: translateY(-6px); min-width: 24px; }
 .name-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.name-row label { font-size: 13.5px; color: var(--muted); }
+.name-row label { font-size: 15px; color: var(--muted); }
 .name-row input {
   font: inherit; color: var(--ink); background: var(--card); border: 1.5px solid var(--rule); border-radius: 10px;
   padding: 9px 12px; width: 10em; min-width: 0;
 }
 .album { display: flex; flex-direction: column; gap: 8px; }
-.album h3, .sec-title { margin: 0; font-size: 12.5px; letter-spacing: .1em; color: var(--muted); font-weight: 500; }
+.album h3, .sec-title { margin: 0; font-size: 14px; letter-spacing: .1em; color: var(--muted); font-weight: 500; }
 .slots { display: flex; flex-wrap: wrap; gap: 6px; }
-.slot { border: 1px dashed var(--rule); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--muted); }
+.slot { border: 1px dashed var(--rule); border-radius: 8px; padding: 6px 12px; font-size: 14.5px; color: var(--muted); }
 .slot.got { border-style: solid; border-color: var(--line); color: var(--ink); }
-.credit { margin: 0; font-size: 12px; color: var(--muted); }
+.credit { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* 插图 */
+.art { display: block; width: 100%; height: 100%; }
+.art-hero { position: relative; flex: 1 1 260px; min-height: 260px; border-radius: 14px; overflow: hidden; }
+.art-hero .art { position: absolute; inset: 0; }
+.art-strip { height: 132px; }
+.art-end { height: 200px; border-radius: 12px; overflow: hidden; margin-bottom: 18px; }
 
 /* 交通卡 */
 .pass { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--rule); box-shadow: 0 10px 28px -20px rgba(0,0,0,.45); }
 .pass-band { background: var(--line); color: var(--line-ink); display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 16px; }
-.brand { font-family: var(--font-display); font-size: 19px; letter-spacing: .05em; }
-.pass-band .date { font-size: 12.5px; }
+.brand { font-family: var(--font-display); font-size: 22px; letter-spacing: .05em; }
+.pass-band .date { font-size: 14px; }
 .pass-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
 .bal { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.bal .lbl { font-size: 12px; letter-spacing: .14em; color: var(--muted); }
-.bal .num { font-size: 32px; font-weight: 700; color: var(--amber); line-height: 1.1; }
+.bal .lbl { font-size: 13.5px; letter-spacing: .14em; color: var(--muted); }
+.bal .num { font-size: 36px; font-weight: 700; color: var(--amber); line-height: 1.1; }
 .bal .num.neg { color: var(--danger); }
-.who { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 13.5px; color: var(--muted); }
+.who { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 15px; color: var(--muted); }
 .who b { color: var(--ink); }
 
 .metro { padding: 4px 14px 0; }
@@ -94,56 +114,56 @@ button { font: inherit; color: inherit; }
 .rail i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--line); }
 .rail b { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--card); }
 .stops { list-style: none; margin: -11px 0 0; padding: 0; display: flex; justify-content: space-between; }
-.stops li { width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+.stops li { width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
 .stops li::before { content: ""; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: var(--card); border: 3px solid var(--rule); }
 .stops li.on::before { border-color: var(--line); }
 
 .meters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 18px; }
-.meter { display: grid; grid-template-columns: auto minmax(0, 1fr) 2.2em; align-items: center; gap: 8px; font-size: 12.5px; }
+.meter { display: grid; grid-template-columns: auto minmax(0, 1fr) 2.2em; align-items: center; gap: 8px; font-size: 14.5px; }
 .meter .bar { height: 6px; border-radius: 3px; background: var(--chip); overflow: hidden; }
 .meter .bar i { display: block; height: 100%; background: var(--line); }
 .meter.low .bar i { background: var(--danger); }
 .meter.low .v { color: var(--danger); }
 .meter .v { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; }
+.chip { background: var(--chip); border-radius: 999px; padding: 3px 12px; font-size: 14.5px; }
 .chip b { font-family: var(--font-mono); font-weight: 700; margin-left: 4px; font-variant-numeric: tabular-nums; }
 
 /* 这一站 */
 .card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 18px 16px; }
-.card h2 { margin: 0 0 10px; font-size: 18px; line-height: 1.35; display: flex; align-items: center; gap: 9px; text-wrap: balance; }
+.card h2 { margin: 0 0 12px; font-size: 21px; line-height: 1.35; display: flex; align-items: center; gap: 9px; text-wrap: balance; }
 .card h2::before { content: ""; flex: none; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; border: 3px solid var(--line); }
-.kicker { margin: 0 0 4px; font-size: 11.5px; color: var(--muted); }
+.kicker { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
 .txt p { margin: 0 0 10px; }
 .txt p:last-child { margin-bottom: 0; }
 .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
 .choice {
-  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 11px 14px; text-align: left; cursor: pointer;
-  display: flex; flex-direction: column; gap: 2px; line-height: 1.5;
+  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 13px 16px; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px; line-height: 1.55;
 }
 .choice:hover { border-color: var(--line); }
-.choice small { font-size: 12.5px; color: var(--muted); }
-.primary { background: var(--line); color: var(--line-ink); border: 0; border-radius: 10px; padding: 11px 22px; font-weight: 700; cursor: pointer; }
+.choice small { font-size: 14px; color: var(--muted); }
+.primary { background: var(--line); color: var(--line-ink); border: 0; border-radius: 10px; padding: 13px 26px; font-weight: 700; cursor: pointer; }
 .primary:hover { filter: brightness(1.08); }
 .deltas { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 16px; }
-.delta { font-family: var(--font-mono); font-size: 12px; padding: 2px 8px; border-radius: 6px; background: var(--chip); font-variant-numeric: tabular-nums; }
+.delta { font-family: var(--font-mono); font-size: 13.5px; padding: 2px 8px; border-radius: 6px; background: var(--chip); font-variant-numeric: tabular-nums; }
 .delta.up { color: var(--good); }
 .delta.down { color: var(--danger); }
-.sub { margin: -4px 0 12px; font-size: 12.5px; color: var(--muted); }
+.sub { margin: -4px 0 14px; font-size: 14px; color: var(--muted); }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .act {
-  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer;
-  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  background: transparent; border: 1.5px solid var(--rule); border-radius: 10px; padding: 12px 14px; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 3px; min-width: 0;
 }
 .act:hover { border-color: var(--line); }
-.act b { font-size: 15px; }
-.act small { font-size: 12px; line-height: 1.45; color: var(--muted); }
+.act b { font-size: 17px; }
+.act small { font-size: 13.5px; line-height: 1.45; color: var(--muted); }
 .free { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.ghost { background: transparent; border: 1px dashed var(--rule); border-radius: 8px; padding: 5px 12px; font-size: 13px; color: var(--muted); cursor: pointer; }
+.ghost { background: transparent; border: 1px dashed var(--rule); border-radius: 8px; padding: 7px 14px; font-size: 14.5px; color: var(--muted); cursor: pointer; }
 .ghost:hover { border-color: var(--line); color: var(--ink); }
-.ending .end-title { display: block; font-family: var(--font-display); font-weight: 400; font-size: 38px; line-height: 1.1; margin: 4px 0 14px; }
+.ending .end-title { display: block; font-family: var(--font-display); font-weight: 400; font-size: 42px; line-height: 1.1; margin: 4px 0 14px; }
 .ending .end-title::before { display: none; }
-.sum { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; margin: 16px 0; font-size: 13.5px; }
+.sum { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 18px 0; font-size: 15px; }
 .sum dt { color: var(--muted); }
 .sum dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
@@ -155,30 +175,31 @@ button { font: inherit; color: inherit; }
 }
 .ticket.offer { border-left-color: var(--amber); }
 .ticket > div { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.ticket small { font-size: 12.5px; color: var(--muted); }
-.ticket .tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--line); }
+.ticket small { font-size: 14px; color: var(--muted); }
+.ticket .tag { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em; color: var(--line); }
 .ticket.offer .tag { color: var(--amber); }
 .ticket button { flex: none; }
-.ticket .take { background: var(--amber); color: var(--card); border: 0; border-radius: 8px; padding: 6px 14px; font-weight: 700; cursor: pointer; }
+.ticket .take { background: var(--amber); color: var(--card); border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; cursor: pointer; }
 .ticket button:disabled { opacity: .45; cursor: not-allowed; }
 
 /* 行程记录 */
 .route { display: flex; flex-direction: column; gap: 8px; }
 .stations { list-style: none; margin: 0; padding: 0 0 0 22px; position: relative; }
 .stations::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; background: var(--line); opacity: .55; }
-.stations li { position: relative; padding: 3px 0 9px; display: flex; flex-direction: column; font-size: 13.5px; }
+.stations li { position: relative; padding: 3px 0 10px; display: flex; flex-direction: column; font-size: 15px; }
 .stations li::before { content: ""; position: absolute; left: -21px; top: 8px; width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%; background: var(--card); border: 2.5px solid var(--line); }
-.stations .t { font-size: 11px; color: var(--muted); }
+.stations .t { font-size: 12.5px; color: var(--muted); }
 
 .foot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-top: 1px solid var(--rule); padding-top: 14px; }
-.toast { font-size: 12.5px; color: var(--good); }
+.toast { font-size: 14px; color: var(--good); }
 
 @media (prefers-reduced-motion: no-preference) {
   .card { animation: rise .22s ease-out; }
   @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } }
 }
 </style>
-
+</head>
+<body>
 <div class="app" id="app">
   <section class="start" id="start" hidden>
     <p class="eyebrow">一个文科生的五年</p>
@@ -195,6 +216,7 @@ button { font: inherit; color: inherit; }
       <button class="primary" id="go" type="button">出发</button>
     </div>
     <div class="album" id="album"></div>
+    <div class="art-hero"><canvas class="art" id="artStart" role="img" aria-label="傍晚，一列高铁开进南屿，城里的灯一盏盏亮起来"></canvas></div>
     <p class="credit">事件引擎部分改编自开源项目 lifesim-kit（MIT 许可）。人物、公司、城市均为虚构。</p>
   </section>
 
@@ -1446,6 +1468,233 @@ globalThis.Core = Core;
 </script>
 <script>
 
+// 插图：用 canvas 画的南屿。亮灯的窗户越多，说明你这一年挣得越多；随机种子固定，灯只会越亮越多。
+const Art = (() => {
+  function rng(seed) {
+    let t = seed >>> 0;
+    return () => {
+      t = (t + 0x6d2b79f5) >>> 0;
+      let x = Math.imul(t ^ (t >>> 15), t | 1);
+      x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const SKY = {
+    dusk: ['#1f2e55', '#5b4a7d', '#e0937a'],
+    night: ['#060b18', '#101b36', '#22345a'],
+  };
+  const WIN = '#ffd27a', WIN2 = '#fff1c9', LINE = '#36b0be', YOU = '#ffcf5a';
+
+  function roundRect(g, x, y, w, h, r) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.lineTo(x + w - r, y);
+    g.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+    g.lineTo(x + r, y + h);
+    g.arc(x + r, y + r, r, Math.PI / 2, Math.PI * 1.5);
+    g.closePath();
+    g.fill();
+  }
+
+  function sky(g, w, h, hour, R) {
+    const c = SKY[hour];
+    const gr = g.createLinearGradient(0, 0, 0, h * 0.8);
+    gr.addColorStop(0, c[0]);
+    gr.addColorStop(0.6, c[1]);
+    gr.addColorStop(1, c[2]);
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
+    const n = Math.round(w / (hour === 'night' ? 9 : 28));
+    for (let i = 0; i < n; i++) {
+      const x = R() * w, y = R() * h * 0.5, a = 0.3 + R() * 0.7, r = R() < 0.9 ? 0.7 : 1.3;
+      g.globalAlpha = a;
+      g.fillStyle = '#ffffff';
+      g.beginPath();
+      g.arc(x, y, r, 0, Math.PI * 2);
+      g.fill();
+    }
+    g.globalAlpha = 1;
+    // 月亮
+    const mx = w * 0.82, my = h * 0.2, mr = Math.max(7, Math.min(18, h * 0.07));
+    const glow = g.createRadialGradient(mx, my, mr * 0.5, mx, my, mr * 4);
+    glow.addColorStop(0, 'rgba(255,240,210,0.35)');
+    glow.addColorStop(1, 'rgba(255,240,210,0)');
+    g.fillStyle = glow;
+    g.fillRect(mx - mr * 4, my - mr * 4, mr * 8, mr * 8);
+    g.fillStyle = '#fbf1d6';
+    g.beginPath();
+    g.arc(mx, my, mr, 0, Math.PI * 2);
+    g.fill();
+  }
+
+  // 一排楼。每个窗户都固定掷两次骰子，亮灯比例变了，已亮的窗户不会熄
+  function buildings(g, R, w, base, o) {
+    const list = [];
+    let x = -R() * 30;
+    while (x < w + 10) {
+      const bw = o.w[0] + R() * (o.w[1] - o.w[0]);
+      const bh = o.h[0] + R() * (o.h[1] - o.h[0]);
+      list.push({ x, y: base - bh, w: bw, h: bh, roof: R(), wins: [] });
+      x += bw + R() * o.gap;
+    }
+    const s = o.win, sh = Math.round(s * 1.4);
+    for (const b of list) {
+      g.fillStyle = o.color;
+      g.fillRect(Math.round(b.x), Math.round(b.y), Math.ceil(b.w), Math.ceil(b.h) + 1);
+      if (b.roof < 0.2) g.fillRect(b.x + b.w * 0.3, b.y - 7, 2, 7);
+      else if (b.roof < 0.32) g.fillRect(b.x + b.w * 0.2, b.y - 5, b.w * 0.45, 5);
+      for (let wy = b.y + o.wgap + 2; wy + sh < base - 3; wy += sh + o.wgap) {
+        for (let wx = b.x + o.wgap + 1; wx + s < b.x + b.w - 1; wx += s + o.wgap) {
+          const r = R(), r2 = R();
+          b.wins.push([Math.round(wx), Math.round(wy)]);
+          if (r < o.lit) g.fillStyle = r2 < 0.8 ? WIN : WIN2;
+          else if (o.dim) g.fillStyle = o.dim;
+          else continue;
+          g.fillRect(Math.round(wx), Math.round(wy), s, sh);
+        }
+      }
+    }
+    return list;
+  }
+
+  function ground(g, w, h, R, lit) {
+    g.fillStyle = '#070c19';
+    g.fillRect(0, h * 0.83, w, h * 0.17);
+    const top = h * 0.875;
+    const gr = g.createLinearGradient(0, top, 0, h);
+    gr.addColorStop(0, '#0d1a33');
+    gr.addColorStop(1, '#060b16');
+    g.fillStyle = gr;
+    g.fillRect(0, top, w, h - top);
+    // 江面上的倒影
+    const n = Math.round((w / 6) * (0.2 + lit));
+    for (let i = 0; i < n; i++) {
+      const x = R() * w, y = top + 3 + R() * Math.max(1, h - top - 5), len = 3 + R() * 10, a = 0.25 + R() * 0.5, c = R();
+      g.globalAlpha = a;
+      g.fillStyle = c < 0.8 ? WIN : '#9fe3ea';
+      g.fillRect(x, y, len, 1);
+    }
+    g.globalAlpha = 1;
+  }
+
+  function rail(g, w, h, pos, beam) {
+    const y = h * 0.845, bottom = h * 0.875;
+    g.fillStyle = '#0b3a42';
+    for (let x = 12; x < w; x += 46) g.fillRect(x, y + 3, 3, bottom - y - 3);
+    g.fillStyle = LINE;
+    g.fillRect(0, y, w, 3);
+    const tw = Math.min(w * 0.32, 170), th = Math.max(8, Math.min(14, h * 0.055));
+    const tx = w * pos, ty = y - th - 1;
+    if (beam) {
+      const bg = g.createLinearGradient(tx + tw, 0, tx + tw + 80, 0);
+      bg.addColorStop(0, 'rgba(255,240,200,0.5)');
+      bg.addColorStop(1, 'rgba(255,240,200,0)');
+      g.fillStyle = bg;
+      g.beginPath();
+      g.moveTo(tx + tw, ty + th * 0.4);
+      g.lineTo(tx + tw + 80, ty - 8);
+      g.lineTo(tx + tw + 80, ty + th + 8);
+      g.closePath();
+      g.fill();
+    }
+    g.fillStyle = '#e9f0f1';
+    roundRect(g, tx, ty, tw, th, th / 2);
+    g.fillStyle = '#0a7482';
+    g.fillRect(tx + 4, ty + th * 0.64, tw - 8, Math.max(1.5, th * 0.14));
+    g.fillStyle = '#ffd98a';
+    for (let x = tx + 8; x < tx + tw - 10; x += 9) g.fillRect(x, ty + th * 0.2, 5, th * 0.3);
+  }
+
+  function you(g, near) {
+    const b = near[Math.floor(near.length * 0.62)];
+    if (!b || !b.wins.length) return;
+    const [x, y] = b.wins[Math.max(0, b.wins.length - 2)];
+    g.save();
+    g.shadowColor = '#ffb347';
+    g.shadowBlur = 14;
+    g.fillStyle = YOU;
+    g.fillRect(x - 0.5, y - 0.5, 4.5, 6);
+    g.restore();
+    const lx = b.x + b.w / 2, ly = b.y - 13;
+    g.strokeStyle = YOU;
+    g.lineWidth = 1;
+    g.beginPath();
+    g.moveTo(lx, ly + 8);
+    g.lineTo(lx, b.y);
+    g.stroke();
+    g.fillStyle = YOU;
+    g.beginPath();
+    g.arc(lx, ly, 8.5, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#3a2600';
+    g.font = '700 10px "Noto Sans SC", "PingFang SC", sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText('你', lx, ly + 0.5);
+  }
+
+  function city(g, w, h, R, o) {
+    const night = o.hour === 'night', lit = o.lit ?? 0.3;
+    buildings(g, R, w, h * 0.74, { h: [h * 0.18, h * 0.44], w: [16, 38], gap: 4, color: night ? '#18264a' : '#3d3c66', lit: lit * 0.45, win: 2, wgap: 3 });
+    buildings(g, R, w, h * 0.79, { h: [h * 0.14, h * 0.5], w: [22, 46], gap: 6, color: night ? '#101a33' : '#2b2a4c', lit: lit * 0.75, win: 3, wgap: 3, dim: 'rgba(255,255,255,0.05)' });
+    const near = buildings(g, R, w, h * 0.83, { h: [h * 0.12, h * 0.34], w: [26, 58], gap: 8, color: night ? '#0a1226' : '#1c1a34', lit, win: 3.5, wgap: 3.5, dim: 'rgba(255,255,255,0.06)' });
+    ground(g, w, h, R, lit);
+    rail(g, w, h, o.mode === 'arrive' ? 0.04 : 0.56, o.mode === 'arrive');
+    if (o.you) you(g, near);
+  }
+
+  function hills(g, w, base, amp, color, R) {
+    const p = R() * 6, f = 0.008 + R() * 0.006;
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(0, 4000);
+    for (let x = 0; x <= w + 6; x += 6) g.lineTo(x, base - Math.sin(x * f + p) * amp - Math.sin(x * f * 2.3 + p) * amp * 0.4);
+    g.lineTo(w + 6, 4000);
+    g.closePath();
+    g.fill();
+  }
+
+  // 回老家：傍晚的小县城，火车往外开
+  function home(g, w, h, R) {
+    hills(g, w, h * 0.62, h * 0.1, '#3a3a64', R);
+    hills(g, w, h * 0.72, h * 0.08, '#262747', R);
+    const base = h * 0.83;
+    let x = w * 0.06;
+    while (x < w * 0.64) {
+      const bw = 16 + R() * 18, bh = h * (0.06 + R() * 0.08), lit = R();
+      g.fillStyle = '#16152b';
+      g.fillRect(x, base - bh, bw, bh + 1);
+      g.beginPath();
+      g.moveTo(x - 2, base - bh);
+      g.lineTo(x + bw / 2, base - bh - 7);
+      g.lineTo(x + bw + 2, base - bh);
+      g.closePath();
+      g.fill();
+      if (lit < 0.5) { g.fillStyle = WIN; g.fillRect(x + bw * 0.35, base - bh * 0.65, 4, 5); }
+      x += bw + 4 + R() * 14;
+    }
+    ground(g, w, h, R, 0.08);
+    rail(g, w, h, 0.66, false);
+  }
+
+  // o: { mode: 'arrive' | 'city' | 'home', hour: 'dusk' | 'night', lit: 0..1, you: bool, seed }
+  function paint(cv, o) {
+    if (!cv) return;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    const g = cv.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const R = rng(o.seed || 7);
+    sky(g, w, h, o.hour || 'night', R);
+    if (o.mode === 'home') home(g, w, h, R);
+    else city(g, w, h, R, o);
+  }
+  return { paint };
+})();
+
 (() => {
   const C = globalThis.Core;
   const KEY = { auto: 'sqjc.auto.v1', slot: 'sqjc.slot.v1', album: 'sqjc.album.v1' };
@@ -1459,6 +1708,18 @@ globalThis.Core = Core;
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const paras = (t) => esc(t).split('\n\n').map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   let S = null;
+  const START_ART = { mode: 'arrive', hour: 'dusk', lit: 0.3, seed: 11 };
+  // 交通卡上的天际线：上班后是夜里，近一年挣得越多，亮灯的窗户越多
+  const cityArt = (s) => ({ mode: 'city', hour: s.phase === 'work' ? 'night' : 'dusk', lit: 0.12 + 0.6 * Math.min(1, Math.sqrt(C.last12(s) / 1e6)), you: Boolean(s.house), seed: 20261 });
+  function endArt(id) {
+    const lit = { million: 0.9, success: 0.7, backbone: 0.5, light: 0.32 }[id];
+    return lit ? { mode: 'city', hour: 'night', lit, you: true, seed: 20261 } : { mode: 'home', hour: 'dusk', seed: 31 };
+  }
+  function paintAll() {
+    if (!S) { Art.paint($('artStart'), START_ART); return; }
+    Art.paint($('artCity'), cityArt(S));
+    if (S.ending) Art.paint($('artEnd'), endArt(S.ending.id));
+  }
 
   function readJSON(raw) { try { const x = JSON.parse(raw); return x && x.v === 1 ? x : null; } catch { return null; } }
   function album() { try { return JSON.parse(store.get(KEY.album) || '[]'); } catch { return []; } }
@@ -1496,6 +1757,7 @@ globalThis.Core = Core;
     if (s.flags.kaogong) chips.push(['备考', Math.min(100, s.exam)]);
     $('pass').innerHTML = `
       <div class="pass-band"><span class="brand">三千块进城</span><span class="mono date">${esc(C.stamp(s))}</span></div>
+      <div class="art-strip"><canvas class="art" id="artCity" role="img" aria-label="南屿的夜景。亮灯的窗户越多，说明你近一年挣得越多"></canvas></div>
       <div class="pass-body">
         <div class="bal"><span class="lbl">存款</span><span class="mono num${st.cash < 0 ? ' neg' : ''}">${C.money(st.cash)}</span></div>
         <div class="who"><b>${esc(s.name)}</b><span>${esc(role)}</span><span>住 ${esc(house)}</span></div>
@@ -1523,6 +1785,7 @@ globalThis.Core = Core;
       const e = S.ending;
       addAlbum(e.id);
       el.innerHTML = `<div class="card ending">
+        <div class="art-end"><canvas class="art" id="artEnd" role="img" aria-label="结局插图"></canvas></div>
         <p class="eyebrow">${esc(e.tag)}</p>
         <h2 class="end-title">${esc(e.title)}</h2>
         <div class="txt">${paras(e.text)}</div>
@@ -1607,6 +1870,7 @@ globalThis.Core = Core;
       start.hidden = false;
       game.hidden = true;
       $('album').innerHTML = albumHTML();
+      paintAll();
       return;
     }
     start.hidden = true;
@@ -1615,6 +1879,7 @@ globalThis.Core = Core;
     renderStage();
     renderTickets();
     renderRoute();
+    paintAll();
     store.set(KEY.auto, JSON.stringify(S));
   }
 
@@ -1666,6 +1931,10 @@ globalThis.Core = Core;
     render();
     if (S) keepStageInView();
   });
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(paintAll, 150); });
+  // 字体加载完再画一遍，插图里的“你”字才用得上正确的字体
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintAll);
   $('nm').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('go').click(); });
 
   function start(data) {
@@ -1677,3 +1946,5 @@ globalThis.Core = Core;
   else start(window.claude?.hot?.data ?? {});
 })();
 </script>
+</body>
+</html>

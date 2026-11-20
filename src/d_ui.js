@@ -12,6 +12,18 @@
   const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const paras = (t) => esc(t).split('\n\n').map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   let S = null;
+  const START_ART = { mode: 'arrive', hour: 'dusk', lit: 0.3, seed: 11 };
+  // 交通卡上的天际线：上班后是夜里，近一年挣得越多，亮灯的窗户越多
+  const cityArt = (s) => ({ mode: 'city', hour: s.phase === 'work' ? 'night' : 'dusk', lit: 0.12 + 0.6 * Math.min(1, Math.sqrt(C.last12(s) / 1e6)), you: Boolean(s.house), seed: 20261 });
+  function endArt(id) {
+    const lit = { million: 0.9, success: 0.7, backbone: 0.5, light: 0.32 }[id];
+    return lit ? { mode: 'city', hour: 'night', lit, you: true, seed: 20261 } : { mode: 'home', hour: 'dusk', seed: 31 };
+  }
+  function paintAll() {
+    if (!S) { Art.paint($('artStart'), START_ART); return; }
+    Art.paint($('artCity'), cityArt(S));
+    if (S.ending) Art.paint($('artEnd'), endArt(S.ending.id));
+  }
 
   function readJSON(raw) { try { const x = JSON.parse(raw); return x && x.v === 1 ? x : null; } catch { return null; } }
   function album() { try { return JSON.parse(store.get(KEY.album) || '[]'); } catch { return []; } }
@@ -49,6 +61,7 @@
     if (s.flags.kaogong) chips.push(['备考', Math.min(100, s.exam)]);
     $('pass').innerHTML = `
       <div class="pass-band"><span class="brand">三千块进城</span><span class="mono date">${esc(C.stamp(s))}</span></div>
+      <div class="art-strip"><canvas class="art" id="artCity" role="img" aria-label="南屿的夜景。亮灯的窗户越多，说明你近一年挣得越多"></canvas></div>
       <div class="pass-body">
         <div class="bal"><span class="lbl">存款</span><span class="mono num${st.cash < 0 ? ' neg' : ''}">${C.money(st.cash)}</span></div>
         <div class="who"><b>${esc(s.name)}</b><span>${esc(role)}</span><span>住 ${esc(house)}</span></div>
@@ -76,6 +89,7 @@
       const e = S.ending;
       addAlbum(e.id);
       el.innerHTML = `<div class="card ending">
+        <div class="art-end"><canvas class="art" id="artEnd" role="img" aria-label="结局插图"></canvas></div>
         <p class="eyebrow">${esc(e.tag)}</p>
         <h2 class="end-title">${esc(e.title)}</h2>
         <div class="txt">${paras(e.text)}</div>
@@ -160,6 +174,7 @@
       start.hidden = false;
       game.hidden = true;
       $('album').innerHTML = albumHTML();
+      paintAll();
       return;
     }
     start.hidden = true;
@@ -168,6 +183,7 @@
     renderStage();
     renderTickets();
     renderRoute();
+    paintAll();
     store.set(KEY.auto, JSON.stringify(S));
   }
 
@@ -219,6 +235,10 @@
     render();
     if (S) keepStageInView();
   });
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(paintAll, 150); });
+  // 字体加载完再画一遍，插图里的“你”字才用得上正确的字体
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintAll);
   $('nm').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('go').click(); });
 
   function start(data) {
