@@ -178,6 +178,8 @@ button { font: inherit; color: inherit; }
 .ticket small { font-size: 14px; color: var(--muted); }
 .ticket .tag { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .06em; color: var(--line); }
 .ticket.offer .tag { color: var(--amber); }
+.ticket { flex-wrap: wrap; }
+.ticket-btns { display: flex; gap: 8px; margin-left: auto; flex: none; }
 .ticket button { flex: none; }
 .ticket .take { background: var(--amber); color: var(--card); border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 700; cursor: pointer; }
 .ticket button:disabled { opacity: .45; cursor: not-allowed; }

@@ -146,10 +146,10 @@
       const T = C.TRACKS[o.track];
       const left = o.exp - s.turn;
       return `<div class="ticket offer"><div>
-        <span class="tag">OFFER · ${left <= 0 ? '这回合不接就过期' : `还能等 ${left + 1} 回合`}</span>
+        <span class="tag">OFFER · ${left <= 0 ? '这回合不接就过期' : `还能等 ${left + 1} 回合`}${o.haggled ? ' · 已讲过价' : ''}</span>
         <b>${esc(T.titles[o.level])}</b>
         <small>${esc(o.company)} · ${T.comm ? '底薪' : '月薪'} ${C.money(o.pay)} · ${esc(T.blurb)}</small>
-      </div><button class="take" type="button" data-accept="${o.uid}" ${idle ? '' : 'disabled'}>接受</button></div>`;
+      </div><span class="ticket-btns">${o.haggled ? '' : `<button class="ghost" type="button" data-haggle="${o.uid}" ${idle ? '' : 'disabled'}>讲价</button>`}<button class="take" type="button" data-accept="${o.uid}" ${idle ? '' : 'disabled'}>接受</button></span></div>`;
     }).join('');
     const invites = s.invites.map((v) => {
       const T = C.TRACKS[v.track];
@@ -206,6 +206,7 @@
     else if ('act' in d) C.act(S, d.act);
     else if ('next' in d) C.next(S);
     else if ('accept' in d) C.accept(S, Number(d.accept));
+    else if ('haggle' in d) C.haggle(S, Number(d.haggle));
     else if ('decline' in d) C.decline(S, Number(d.decline));
     else if ('move' in d) C.move(S);
     else if ('quit' in d) C.quit(S);

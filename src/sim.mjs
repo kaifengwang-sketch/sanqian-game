@@ -17,6 +17,7 @@ const smart = {
     }
     const t = v.title;
     if (t.includes('谈薪')) return 1;
+    if (t.startsWith('跟') && t.endsWith('讲价')) return 0;
     if (t === '先找个落脚的地方') return idx(v, '城中村');
     if (t === '找房子') return Math.max(0, v.choices.findIndex((c) => c.label.includes('合租') || c.label.includes('城中村')));
     if (t === '公司宿舍') return 1;
@@ -28,6 +29,8 @@ const smart = {
   },
   act(s) {
     const j = s.job, st = s.stats;
+    const h = s.offers.find((o) => !o.haggled);
+    if (h) return ['haggle', h.uid];
     const best = s.offers.filter((o) => o.track !== 'live' && (!j || o.pay > j.pay * 1.15)).sort((a, b) => b.pay - a.pay)[0];
     if (best) return ['accept', best.uid];
     if (!j) {
@@ -80,7 +83,7 @@ function play(bot, seed) {
     else if (v.mode === 'scene') C.choose(s, bot.choose(s, v));
     else {
       const a = bot.act(s, v);
-      if (Array.isArray(a)) C.accept(s, a[1]); else C.act(s, a);
+      if (Array.isArray(a)) (a[0] === 'haggle' ? C.haggle : C.accept)(s, a[1]); else C.act(s, a);
       if (s.job && firstJob === null) firstJob = s.turn;
     }
   }

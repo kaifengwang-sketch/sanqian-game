@@ -414,12 +414,16 @@
     s.queue.push({ id: 'info', p: { title: old ? '跳槽' : '入职', text } });
     if (T.dorm && s.house !== 'dorm') s.queue.push({ id: 'dorm' });
   }
+  function haggle(s, id) {
+    const o = s.offers.find((x) => x.uid === id);
+    if (idle(s) && o && !o.haggled) s.queue.push({ id: 'haggle', p: { uid: id } });
+  }
   function decline(s, id) { if (idle(s)) s.invites = s.invites.filter((x) => x.uid !== id); }
   function move(s) { if (idle(s) && s.house) s.queue.push({ id: 'house', p: {} }); }
   function quit(s) { if (idle(s) && s.job) s.queue.push({ id: 'quit' }); }
 
   return {
-    newGame, view, act, choose, next, accept, decline, move, quit, idle,
+    newGame, view, act, choose, next, accept, haggle, decline, move, quit, idle,
     stamp, money, last12, monthsPerTurn, calMonth, yearOf,
     TRACKS, HOUSES, ENDINGS, ENDING_ORDER, FOOD_WEEK,
   };

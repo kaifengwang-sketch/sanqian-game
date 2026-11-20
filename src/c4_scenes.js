@@ -62,6 +62,52 @@
     if (s.house === 'dorm') s.queue.push({ id: 'house', p: { forced: true, msg: '离职了，宿舍得在这周搬出去。' } });
   }
 
+  // ---- 讲价：每个 offer 只能讲一次。表达越高越容易谈成，开口太狠或者说谎被识破，offer 可能被收回 ----
+  function haggleGo(s, id, kind, rival) {
+    const o = s.offers.find((x) => x.uid === id);
+    if (!o) return '这个 offer 已经过期了。';
+    const T = TRACKS[o.track], pw = T.comm ? '底薪' : '月薪', old = o.pay;
+    const tb = (s.stats.talk - 30) / 200;
+    o.haggled = true;
+    const raise = (pct) => {
+      o.pay = Math.max(old + 100, r100(old * (1 + pct)));
+      add(s, { mood: 5 });
+      log(s, `跟${o.company}讲价，${pw}从 ${money(old)} 谈到 ${money(o.pay)}`);
+    };
+    const pull = () => {
+      s.offers = s.offers.filter((x) => x.uid !== id);
+      add(s, { mood: -10 });
+      log(s, `讲价没谈拢，${o.company}收回了 offer`);
+    };
+    if (T.trap) return '负责人摆摆手：“六千已经是最高了。家人们刚来都是这么过来的。”';
+    if (kind === 'rival') {
+      const strong = rival.pay >= old;
+      if (chance(s, (strong ? 0.55 : 0.25) + tb + (rival.track === 'bigtech' ? 0.1 : 0))) {
+        raise(strong ? Math.max(1.05, Math.min((rival.pay * 1.08) / old, 1.2)) - 1 : 0.03 + rnd(s) * 0.02);
+        return rival.pay === old
+          ? `“${rival.company}也给到 ${money(rival.pay)}？”HR 沉默了几秒，“这样，我去申请一下。”\n\n第二天，${o.company}把${pw}提到了 ${money(o.pay)}。`
+          : `HR 去跟老板商量了半天，回电话说：“我们最多给到 ${money(o.pay)}。”\n\n${pw}从 ${money(old)} 涨到了 ${money(o.pay)}。`;
+      }
+      if (chance(s, 0.08)) { pull(); return `HR 的语气冷了下来：“那您去${rival.company}吧，祝您顺利。”\n\n${o.company}的 offer 收回了。`; }
+      return 'HR 说：“我们的薪资是按级别定的，没法单独调。您再考虑考虑。”';
+    }
+    if (kind === 'bluff') {
+      if (chance(s, 0.4 + tb)) { raise(0.05 + rnd(s) * 0.05); return `你说另一家给得更高。HR 没多问：“我去申请一下。”\n\n${pw}从 ${money(old)} 涨到了 ${money(o.pay)}。挂了电话，你手心全是汗。`; }
+      if (chance(s, 0.4)) { pull(); return 'HR 说：“方便把那家的 offer 截图发我看看吗？”\n\n你支支吾吾说不出来。第二天，offer 被收回了。'; }
+      add(s, { mood: -3 });
+      return 'HR 说：“那您可以先去那边看看，我们这边就是这个数。”';
+    }
+    if (kind === 'soft') {
+      if (chance(s, 0.35 + tb)) { raise(0.03 + rnd(s) * 0.03); return `HR 笑了：“看你这么有诚意，我帮你争取一下。”\n\n${pw}从 ${money(old)} 调到了 ${money(o.pay)}。`; }
+      return 'HR 说：“这个数是定好的，真没法动了。不过我们福利很好。”';
+    }
+    const p = 0.15 + tb * 0.8, r = rnd(s);
+    if (r < p) { raise(0.2); return `电话那头安静了一会儿：“……行，就按你说的。”\n\n${pw}从 ${money(old)} 涨到了 ${money(o.pay)}。`; }
+    if (r < p + 0.3) { raise(0.08); return `HR 说：“两成不可能，最多再加 8%。”\n\n${pw}从 ${money(old)} 涨到了 ${money(o.pay)}。`; }
+    if (r < p + 0.45) { pull(); return 'HR 说：“那我们可能不太合适。”\n\n第二天，你收到一封邮件：offer 收回了。'; }
+    return 'HR 说：“这个涨幅我们给不了。原来的 offer 还有效，您考虑一下。”';
+  }
+
   // ---- 场景：build 必须是纯函数（界面会反复调用），随机只在 go 里用 ----
   const SC = {
     check: () => ({ title: '', text: '', choices: [{ label: '继续', go: () => {} }] }),
@@ -161,6 +207,22 @@
         { label: '谢谢，不用了', go: () => '你客气地拒绝了。说出口的那一刻，你觉得自己有点不一样了。' },
       ],
     }),
+    haggle: (s, p) => {
+      const o = s.offers.find((x) => x.uid === p.uid);
+      if (!o) return { title: '讲价', text: '这个 offer 已经过期了。', choices: [{ label: '好吧', go: () => {} }] };
+      const pw = TRACKS[o.track].comm ? '底薪' : '月薪';
+      const rival = s.offers.filter((x) => x.uid !== o.uid).sort((a, b) => b.pay - a.pay)[0];
+      let text = `你给${o.company}的 HR 回了个电话，想谈谈薪资。他们现在给的是${pw} ${money(o.pay)}。`;
+      if (rival) text += `\n\n你手上还有${rival.company}的 offer，${TRACKS[rival.track].comm ? '底薪' : '月薪'} ${money(rival.pay)}。`;
+      if (s.job) text += `\n\n你现在的月薪是 ${money(s.job.pay)}。`;
+      const choices = [];
+      if (rival) choices.push({ label: `拿${rival.company}的 offer 来谈`, go: (s) => haggleGo(s, o.uid, 'rival', rival) });
+      else choices.push({ label: '说手上还有别家 offer（其实没有）', go: (s) => haggleGo(s, o.uid, 'bluff') });
+      choices.push({ label: '说很想来，问能不能再加一点', go: (s) => haggleGo(s, o.uid, 'soft') });
+      choices.push({ label: `直接开口要 ${money(r100(o.pay * 1.2))}`, go: (s) => haggleGo(s, o.uid, 'hard') });
+      choices.push({ label: '算了，不讲了', go: () => {} });
+      return { title: `跟${o.company}讲价`, text, choices };
+    },
     loanback: (s, p) => ({
       title: '那笔钱', text: `你借给同学的 ${money(p.amt)}，已经过去好一阵了。`,
       choices: [{ label: '问问他', go: (s) => {
